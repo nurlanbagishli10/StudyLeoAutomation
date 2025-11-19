@@ -21,7 +21,7 @@ public class ExtentReportManager {
     public static ExtentReports createInstance() {
         if (extent == null) {
             // Report faylının adı və yolu
-            String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String reportName = "UniversityTest_Report_" + timestamp + ".html";
             reportPath = System.getProperty("user.dir") + "/test-reports/" + reportName;
 
