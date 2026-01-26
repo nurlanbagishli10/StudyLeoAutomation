@@ -1,25 +1,25 @@
 import org.openqa.selenium.By;
-import org.openqa. selenium.JavascriptExecutor;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa. selenium.WebElement;
-import org.openqa.selenium.chrome. ChromeDriver;
-import org. openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui. ExpectedCondition;
-import org.openqa. selenium.support.ui.ExpectedConditions;
-import org. openqa.selenium.support.ui.WebDriverWait;
-import io.github.bonigarcia. wdm.WebDriverManager;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file. Paths;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time. Duration;
-import java.time. LocalDateTime;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class BlogsTest {
     }
 
     private void initializeDriver() {
-        WebDriverManager. chromedriver().setup();
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
@@ -77,20 +77,20 @@ public class BlogsTest {
     }
 
     private void initializeLog() {
-        DateTimeFormatter formatter = DateTimeFormatter. ofPattern("yyyy-MM-dd_HH-mm-ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String timestamp = LocalDateTime.now().format(formatter);
 
-        logFileName = "BlogsTest_" + timestamp + ". txt";
+        logFileName = "BlogsTest_" + timestamp + ".txt";
         screenshotFolder = "screenshots_blogs_" + timestamp;
 
         try {
             Files.createDirectories(Paths.get(screenshotFolder));
             log("📁 Screenshot folder:  " + screenshotFolder);
         } catch (IOException e) {
-            logError("Screenshot folder creation failed: " + e. getMessage());
+            logError("Screenshot folder creation failed: " + e.getMessage());
         }
 
-        log("═". repeat(70));
+        log("═".repeat(70));
         log("📰 BLOGS TEST - AUTOMATED TESTING");
         log("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         log("═".repeat(70));
@@ -124,7 +124,7 @@ public class BlogsTest {
             String screenshotName = fileName + "_" + timestamp + ".png";
             String destinationPath = screenshotFolder + "/" + screenshotName;
 
-            Files.copy(sourceFile.toPath(), Paths.get(destinationPath), StandardCopyOption. REPLACE_EXISTING);
+            Files.copy(sourceFile.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
 
             screenshotCount++;
             log("📸 Screenshot saved: " + screenshotName);
@@ -162,8 +162,8 @@ public class BlogsTest {
     public void run() {
         try {
             log("\n" + "█".repeat(70));
-            log("█  🚀 STARTING AUTOMATED BLOG TESTING" + " ". repeat(32) + "█");
-            log("█". repeat(70) + "\n");
+            log("█  🚀 STARTING AUTOMATED BLOG TESTING" + " ".repeat(32) + "█");
+            log("█".repeat(70) + "\n");
 
             openWebsite();
             acceptCookies();
@@ -190,7 +190,7 @@ public class BlogsTest {
             waitForPageReady();
             sleep(1500);
 
-            js.executeScript("window.scrollTo(0, document.body. scrollHeight);");
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
             sleep(800);
             js.executeScript("window.scrollTo(0, 0);");
             sleep(800);
@@ -209,7 +209,7 @@ public class BlogsTest {
             List<WebElement> blogElements = getBlogElements();
 
             if (blogElements.isEmpty()) {
-                log("⚠️ Bu səhifədə blog tapılmadı.  Test dayandırılır.");
+                log("⚠️ Bu səhifədə blog tapılmadı. Test dayandırılır.");
                 takeScreenshot("WARNING_NO_BLOGS_Page" + pageNumber);
                 break;
             }
@@ -232,7 +232,7 @@ public class BlogsTest {
             log("\n🔍 Bu səhifədə " + blogsOnPage + " blog tapıldı\n");
 
             if (blogsOnPage == 0) {
-                log("⚠️ Heç bir blog tapılmadı.  Test dayandırılır.");
+                log("⚠️ Heç bir blog tapılmadı. Test dayandırılır.");
                 break;
             }
 
@@ -250,7 +250,7 @@ public class BlogsTest {
                 boolean navigated = clickNextPage();
 
                 if (! navigated) {
-                    logError("Could not navigate to page " + (pageNumber + 1) + ".  Stopping.");
+                    logError("Could not navigate to page " + (pageNumber + 1) + ". Stopping.");
                     break;
                 }
 
@@ -258,7 +258,7 @@ public class BlogsTest {
                 waitForPageReady();
                 sleep(1500);
             } else {
-                log("\n✅ Növbəti səhifə yoxdur. Test tamamlandı.");
+                log("\n✅ Növbəti səhifə yoxdur.Test tamamlandı.");
                 break;
             }
         }
@@ -278,7 +278,7 @@ public class BlogsTest {
                 String blogUrl = blogUrls.get(i);
                 String blogTitle = blogTitles.get(i);
 
-                log("━". repeat(70));
+                log("━".repeat(70));
                 log("📰 " + (i + 1) + "/" + count + ": " + blogTitle);
                 logDebug("URL: " + blogUrl);
 
@@ -335,12 +335,12 @@ public class BlogsTest {
 
     private boolean verifyBlogPage() {
         try {
-            // ✅ 1. Səhifənin tam yüklənməsini gözlə
+            // ✅ 1.Səhifənin tam yüklənməsini gözlə
             log("   ⏳ Waiting for page to load completely...");
             waitForPageReady();
             sleep(2000); // 1500→2000
 
-            // ✅ 2. URL yoxla
+            // ✅ 2.URL yoxla
             String currentUrl = driver.getCurrentUrl();
             logDebug("Current URL: " + currentUrl);
 
@@ -349,7 +349,7 @@ public class BlogsTest {
                 return false;
             }
 
-            // ✅ 3. Content elementlərinin yüklənməsini gözlə (retry ilə)
+            // ✅ 3.Content elementlərinin yüklənməsini gözlə (retry ilə)
             int maxRetries = 3;
             int attempt = 0;
             List<WebElement> contentElements = new ArrayList<>();
@@ -361,7 +361,7 @@ public class BlogsTest {
                     logDebug("Waiting for content elements (attempt " + attempt + "/" + maxRetries + ")...");
 
                     // Explicit wait - content elementləri görünənə qədər gözlə
-                    contentElements = wait. until(ExpectedConditions.presenceOfAllElementsLocatedBy(blogMainContent));
+                    contentElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(blogMainContent));
 
                     if (! contentElements.isEmpty()) {
                         logDebug("✓ Content elements found:  " + contentElements.size());
@@ -370,7 +370,7 @@ public class BlogsTest {
 
                 } catch (Exception e) {
                     if (attempt < maxRetries) {
-                        logDebug("Content not ready, retrying... (" + attempt + "/" + maxRetries + ")");
+                        logDebug("Content not ready, retrying...(" + attempt + "/" + maxRetries + ")");
                         sleep(1500);
                     } else {
                         logError("Blog content elements not found after " + maxRetries + " attempts");
@@ -379,12 +379,12 @@ public class BlogsTest {
                 }
             }
 
-            if (contentElements. isEmpty()) {
+            if (contentElements.isEmpty()) {
                 logError("Blog content elements not found");
                 return false;
             }
 
-            // ✅ 4. Body text yoxla (retry ilə)
+            // ✅ 4.Body text yoxla (retry ilə)
             attempt = 0;
             String bodyText = null;
 
@@ -392,26 +392,26 @@ public class BlogsTest {
                 attempt++;
 
                 try {
-                    WebElement body = driver.findElement(By. tagName("body"));
+                    WebElement body = driver.findElement(By.tagName("body"));
                     bodyText = body.getText();
 
-                    if (bodyText != null && bodyText. length() > 100) {
+                    if (bodyText != null && bodyText.length() > 100) {
                         logDebug("   ✓ Content OK (" + bodyText.length() + " chars)");
                         return true;
                     }
 
                     // Content qısa olarsa, bir az gözlə və yenidən yoxla
                     if (attempt < maxRetries) {
-                        logDebug("Content short (" + (bodyText != null ? bodyText. length() : "0") + " chars), waiting and retrying...");
+                        logDebug("Content short (" + (bodyText != null ? bodyText.length() : "0") + " chars), waiting and retrying...");
                         sleep(1500);
                     } else {
-                        logError("Content too short:  " + (bodyText != null ? bodyText. length() : "null") + " chars after " + maxRetries + " attempts");
+                        logError("Content too short:  " + (bodyText != null ? bodyText.length() : "null") + " chars after " + maxRetries + " attempts");
                         return false;
                     }
 
                 } catch (Exception e) {
                     if (attempt < maxRetries) {
-                        logDebug("Body check failed, retrying... (" + attempt + "/" + maxRetries + ")");
+                        logDebug("Body check failed, retrying...(" + attempt + "/" + maxRetries + ")");
                         sleep(1500);
                     } else {
                         logError("Content check failed after " + maxRetries + " attempts:  " + e.getMessage());
@@ -499,7 +499,7 @@ public class BlogsTest {
         try {
             log("\n🔍 Checking for next page button...");
 
-            js.executeScript("window.scrollTo(0, document.body. scrollHeight);");
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
             sleep(1500);
 
             // ✅ Strategiya 1: Page number button (2, 3, 4...)
@@ -515,8 +515,8 @@ public class BlogsTest {
                         // İnnerHTML-də rəqəm varsa (2, 3, 4...)
                         if (innerHtml != null && innerHtml.trim().matches("\\d+")) {
                             // ✅ isDisplayed() yoxlamasını SILIRIQ, yalnız isEnabled() yoxlayırıq
-                            if (btn. isEnabled()) {
-                                logDebug("Next page button found:  " + innerHtml. trim());
+                            if (btn.isEnabled()) {
+                                logDebug("Next page button found:  " + innerHtml.trim());
                                 log("✅ Next page option found (page " + innerHtml.trim() + " button)");
                                 return true;
                             }
@@ -565,14 +565,14 @@ public class BlogsTest {
             String currentUrl = driver.getCurrentUrl();
             log("📍 Current URL: " + currentUrl);
 
-            js.executeScript("window.scrollTo(0, document.body. scrollHeight);");
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
             sleep(1500);
 
             // ❌ BU SƏTRİ SİLDİM (debug screenshot)
             // takeScreenshot("BEFORE_NEXT_PAGE_CLICK");
 
             try {
-                WebElement page2Button = wait.until(ExpectedConditions. elementToBeClickable(
+                WebElement page2Button = wait.until(ExpectedConditions.elementToBeClickable(
                         By.cssSelector("a[data-slot='pagination-link'][href='#']:not([aria-current])")
                 ));
 
@@ -586,7 +586,7 @@ public class BlogsTest {
                     page2Button.click();
                     log("   ✓ Clicked pagination button (standard click)");
                 } catch (Exception e) {
-                    js. executeScript("arguments[0].click();", page2Button);
+                    js.executeScript("arguments[0].click();", page2Button);
                     log("   ✓ Clicked pagination button (JavaScript click)");
                 }
 
@@ -692,13 +692,13 @@ public class BlogsTest {
     }
 
     private void scrollToElement(WebElement element) {
-        js.executeScript("arguments[0]. scrollIntoView({block: 'center'});", element);
+        js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
         sleep(500);
     }
 
     private void waitForPageReady() {
         try {
-            longWait. until((ExpectedCondition<Boolean>) drv ->
+            longWait.until((ExpectedCondition<Boolean>) drv ->
                     js.executeScript("return document.readyState").toString().equals("complete"));
             sleep(500);
         } catch (Exception ignored) {}
@@ -707,7 +707,7 @@ public class BlogsTest {
     private void printSummary() {
         log("\n" + "█".repeat(70));
         log("█  📊 FINAL RESULTS" + " ".repeat(51) + "█");
-        log("█". repeat(70));
+        log("█".repeat(70));
         log("");
         log("   📰 Total Blogs Tested: " + totalTestedBlogs);
         log("   ✅ Successful:  " + totalSuccessful);
@@ -783,7 +783,7 @@ public class BlogsTest {
                 link.click();
                 log("   ✓ Clicked with standard click");
             } catch (Exception e) {
-                js.executeScript("arguments[0]. click();", link);
+                js.executeScript("arguments[0].click();", link);
                 log("   ✓ Clicked with JavaScript");
             }
 
@@ -803,7 +803,7 @@ public class BlogsTest {
             if (newUrl.contains("/blogs")) {
                 log("✅ Blogs page opened successfully!\n");
             } else {
-                logError("Failed to navigate to blogs page.  Current URL: " + newUrl);
+                logError("Failed to navigate to blogs page. Current URL: " + newUrl);
                 takeScreenshot("ERROR_BLOGS_PAGE_NOT_OPENED");
                 throw new Exception("Blogs page not opened");
             }

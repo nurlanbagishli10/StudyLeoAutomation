@@ -82,7 +82,7 @@ public class UniversitiesTest {
     }
 
     private void initializeLog() {
-        DateTimeFormatter formatter = DateTimeFormatter. ofPattern("yyyy-MM-dd_HH-mm-ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String timestamp = LocalDateTime.now().format(formatter);
 
         logFileName = "UniversitiesTest_" + timestamp + ".txt";
@@ -152,7 +152,7 @@ public class UniversitiesTest {
     }
 
     /**
-     * ⏱️ Thread. sleep wrapper
+     * ⏱️ Thread.sleep wrapper
      */
     private void sleep(int milliseconds) {
         try {
@@ -176,8 +176,8 @@ public class UniversitiesTest {
     public void run() {
         try {
             log("\n" + "█".repeat(70));
-            log("█  🚀 STARTING AUTOMATED UNIVERSITY TESTING" + " ". repeat(26) + "█");
-            log("█". repeat(70) + "\n");
+            log("█  🚀 STARTING AUTOMATED UNIVERSITY TESTING" + " ".repeat(26) + "█");
+            log("█".repeat(70) + "\n");
 
             openWebsite();
             acceptCookies();
@@ -202,7 +202,7 @@ public class UniversitiesTest {
                     boolean navigated = navigateToNextPage(page + 1);
 
                     if (! navigated) {
-                        logError("Could not navigate to page " + (page + 1) + ". Stopping.");
+                        logError("Could not navigate to page " + (page + 1) + ".Stopping.");
                         break;
                     }
                 }
@@ -323,7 +323,7 @@ public class UniversitiesTest {
 
         try {
             sleep(500);
-            js.executeScript("window.scrollTo(0, document. body.scrollHeight);");
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
             sleep(500);
             js.executeScript("window.scrollTo(0, 0);");
             sleep(400);
@@ -334,7 +334,7 @@ public class UniversitiesTest {
 
             for (WebElement card : allCards) {
                 try {
-                    js. executeScript("arguments[0].scrollIntoView({block: 'center'});", card);
+                    js.executeScript("arguments[0].scrollIntoView({block: 'center'});", card);
                     sleep(50);
 
                     String href = card.getAttribute("href");
@@ -342,7 +342,7 @@ public class UniversitiesTest {
                     if (href == null || href.isEmpty() ||
                             ! href.contains("/universities/") ||
                             href.endsWith("/universities") ||
-                            href. contains("#")) {
+                            href.contains("#")) {
                         continue;
                     }
 
@@ -358,7 +358,7 @@ public class UniversitiesTest {
                 }
             }
 
-            int count = universityUrls. size();
+            int count = universityUrls.size();
             log("\n🔍 Found " + count + " universities on this page\n");
 
             String listPageUrl = driver.getCurrentUrl();
@@ -370,7 +370,7 @@ public class UniversitiesTest {
                     String universityUrl = universityUrls.get(i);
                     String universityTitle = universityTitles.get(i);
 
-                    log("━". repeat(70));
+                    log("━".repeat(70));
                     log("🎓 " + (i + 1) + "/" + count + ": " + universityTitle);
                     logDebug("URL: " + universityUrl);
 
@@ -406,7 +406,7 @@ public class UniversitiesTest {
 
                 } catch (Exception e) {
                     // ❌ EXCEPTION - Screenshot AL
-                    logError("Test error: " + e. getMessage());
+                    logError("Test error: " + e.getMessage());
 
                     String safeName = (i < universityTitles.size())
                             ? universityTitles.get(i).replaceAll("[^a-zA-Z0-9]", "_")
@@ -475,9 +475,9 @@ public class UniversitiesTest {
             }
 
             // Yol 2: Pagination button click
-            log("   🔄 Trying pagination button.. .");
+            log("   🔄 Trying pagination button...");
             try {
-                js.executeScript("window.scrollTo(0, document. body.scrollHeight);");
+                js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                 sleep(800);
 
                 List<WebElement> paginationElements = driver.findElements(
@@ -496,16 +496,16 @@ public class UniversitiesTest {
                             try {
                                 element.click();
                             } catch (Exception e) {
-                                js.executeScript("arguments[0]. click();", element);
+                                js.executeScript("arguments[0].click();", element);
                             }
 
                             sleep(1500);
 
                             String afterUrl = driver.getCurrentUrl();
-                            if (afterUrl. contains("page=" + targetPage)) {
+                            if (afterUrl.contains("page=" + targetPage)) {
                                 log("✅ Navigated successfully (button click)");
 
-                                js.executeScript("window.scrollTo(0, document. body.scrollHeight);");
+                                js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                                 sleep(500);
                                 js.executeScript("window.scrollTo(0, 0);");
                                 sleep(500);
@@ -536,7 +536,7 @@ public class UniversitiesTest {
                             ExpectedConditions.elementToBeClickable(selector)
                     );
 
-                    js.executeScript("arguments[0]. scrollIntoView({block: 'center'});", pageButton);
+                    js.executeScript("arguments[0].scrollIntoView({block: 'center'});", pageButton);
                     sleep(300);
 
                     try {
@@ -551,7 +551,7 @@ public class UniversitiesTest {
                     if (afterUrl.contains("page=" + targetPage)) {
                         log("✅ Navigated successfully (alternative selector)");
 
-                        js.executeScript("window.scrollTo(0, document. body.scrollHeight);");
+                        js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                         sleep(500);
                         js.executeScript("window.scrollTo(0, 0);");
                         sleep(500);
@@ -564,16 +564,16 @@ public class UniversitiesTest {
             }
 
             // Yol 4: JavaScript redirect
-            log("   🔄 Forcing URL with JavaScript.. .");
+            log("   🔄 Forcing URL with JavaScript...");
             try {
-                js.executeScript("window.location. href = '" + newUrl + "';");
+                js.executeScript("window.location.href = '" + newUrl + "';");
                 sleep(2000);
 
                 String afterUrl = driver.getCurrentUrl();
                 if (afterUrl.contains("page=" + targetPage)) {
                     log("✅ Navigated successfully (JS redirect)");
 
-                    js.executeScript("window.scrollTo(0, document. body.scrollHeight);");
+                    js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                     sleep(500);
                     js.executeScript("window.scrollTo(0, 0);");
                     sleep(500);
@@ -581,7 +581,7 @@ public class UniversitiesTest {
                     return true;
                 }
             } catch (Exception e) {
-                logDebug("   ⚠ JS redirect failed: " + e. getMessage());
+                logDebug("   ⚠ JS redirect failed: " + e.getMessage());
             }
 
             logError("All navigation methods failed!");
@@ -624,7 +624,7 @@ public class UniversitiesTest {
                             (dataSlot != null && dataSlot.contains("pagination")))) {
 
                         count++;
-                        log("   " + count + ".  Text: '" + text + "' | Href: " + href + " | Aria:  " + ariaLabel + " | Data-slot: " + dataSlot);
+                        log("   " + count + ". Text: '" + text + "' | Href: " + href + " | Aria:  " + ariaLabel + " | Data-slot: " + dataSlot);
 
                         if (count >= 10) break;
                     }
@@ -661,17 +661,17 @@ public class UniversitiesTest {
             }
 
             try {
-                WebElement body = driver.findElement(By. tagName("body"));
+                WebElement body = driver.findElement(By.tagName("body"));
                 String bodyText = body.getText();
 
                 if (bodyText != null && bodyText.length() > 100) {
                     logDebug("   ✓ Content OK (" + bodyText.length() + " chars)");
                     return true;
                 } else {
-                    logError("Content too short: " + (bodyText != null ? bodyText. length() : "null") + " chars");
+                    logError("Content too short: " + (bodyText != null ? bodyText.length() : "null") + " chars");
 
                     // ✅ Content qısa halında screenshot (burda problem var)
-                    System.out.println("🔴 CONTENT PROBLEM - Screenshot çəkilir.. .");
+                    System.out.println("🔴 CONTENT PROBLEM - Screenshot çəkilir...");
                     takeScreenshot("ERROR_CONTENT_TOO_SHORT");
 
                     return false;
@@ -699,7 +699,7 @@ public class UniversitiesTest {
         try {
             String ariaLabel = card.getAttribute("aria-label");
             if (ariaLabel != null && ! ariaLabel.isEmpty()) {
-                return ariaLabel. replace("View details for ", "");
+                return ariaLabel.replace("View details for ", "");
             }
 
             try {
@@ -718,7 +718,7 @@ public class UniversitiesTest {
     private void printSummary() {
         log("\n" + "█".repeat(70));
         log("█  📊 FINAL RESULTS" + " ".repeat(51) + "█");
-        log("█". repeat(70));
+        log("█".repeat(70));
         log("");
         log("   🎓 Total Universities Tested: " + totalTestedUniversities);
         log("   ✅ Successful:  " + totalSuccessful);
@@ -772,7 +772,7 @@ public class UniversitiesTest {
 
     private boolean isElementPresent(By locator) {
         try {
-            wait.until(ExpectedConditions. presenceOfElementLocated(locator));
+            wait.until(ExpectedConditions.presenceOfElementLocated(locator));
             return true;
         } catch (Exception e) {
             return false;
@@ -785,7 +785,7 @@ public class UniversitiesTest {
             element.click();
         } catch (Exception e) {
             WebElement element = driver.findElement(locator);
-            js.executeScript("arguments[0]. click();", element);
+            js.executeScript("arguments[0].click();", element);
         }
     }
 

@@ -1,12 +1,12 @@
-import org.openqa.selenium. By;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa. selenium.WebElement;
-import org.openqa.selenium.chrome. ChromeDriver;
-import org. openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui. ExpectedConditions;
-import org. openqa.selenium.support.ui.WebDriverWait;
-import io.github.bonigarcia. wdm.WebDriverManager;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import java.time.Duration;
 import java.util.Set;
 
@@ -38,7 +38,7 @@ public class HomePageTest {
     }
 
     private void initializeDriver() {
-        WebDriverManager. chromedriver().setup();
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
@@ -115,15 +115,15 @@ public class HomePageTest {
     private void test2_ApplyNowButton() {
         System.out.println("═══════════════════════════════════════");
         System.out.println("TEST 2 - APPLY NOW BUTONU");
-        System.out. println("═══════════════════════════════════════\n");
+        System.out.println("═══════════════════════════════════════\n");
 
         try {
             if (isElementPresent(applyNowButton)) {
-                System. out.println("ℹ️  Apply Now butonu bulundu");
+                System.out.println("ℹ️  Apply Now butonu bulundu");
                 scrollToElement(applyNowButton);
                 bekle(500);
                 clickElement(applyNowButton);
-                System. out.println("✅ Apply Now'a tıklandı");
+                System.out.println("✅ Apply Now'a tıklandı");
                 bekle(1500);
 
                 if (isElementPresent(closeDialogButton)) {
@@ -146,12 +146,12 @@ public class HomePageTest {
 
         try {
             if (isElementPresent(closeDialogButton)) {
-                System. out.println("ℹ️  X butonu bulundu");
+                System.out.println("ℹ️  X butonu bulundu");
                 clickElement(closeDialogButton);
                 System.out.println("✅ X butonuna tıklandı, dialog kapatıldı\n");
                 bekle(1500);
             } else {
-                System. out.println("⚠️  X butonu bulunamadı\n");
+                System.out.println("⚠️  X butonu bulunamadı\n");
             }
         } catch (Exception e) {
             System.err.println("❌ TEST 3 Hatası: " + e.getMessage() + "\n");
@@ -161,7 +161,7 @@ public class HomePageTest {
     private void test4_SearchBox() {
         System.out.println("═══════════════════════════════════════");
         System.out.println("TEST 4 - SEARCH BOX");
-        System.out. println("═══════════════════════════════════════\n");
+        System.out.println("═══════════════════════════════════════\n");
 
         try {
             if (isElementPresent(searchBox)) {
@@ -184,7 +184,7 @@ public class HomePageTest {
 
         try {
             if (isElementPresent(searchButton)) {
-                System.out. println("ℹ️  Search butonu bulundu");
+                System.out.println("ℹ️  Search butonu bulundu");
                 clickElement(searchButton);
                 System.out.println("✅ Search butonuna tıklandı");
                 bekle(2500);
@@ -201,14 +201,14 @@ public class HomePageTest {
                 System.out.println("❌ Search butonu bulunamadı\n");
             }
         } catch (Exception e) {
-            System.err. println("❌ TEST 5 Hatası: " + e.getMessage() + "\n");
+            System.err.println("❌ TEST 5 Hatası: " + e.getMessage() + "\n");
         }
     }
 
     private void test6_WhatsAppButton() {
-        System.out. println("═══════════════════════════════════════");
+        System.out.println("═══════════════════════════════════════");
         System.out.println("TEST 6 - WHATSAPP BUTONU");
-        System.out. println("═══════════════════════════════════════\n");
+        System.out.println("═══════════════════════════════════════\n");
 
         try {
             if (isElementPresent(whatsappButton)) {
@@ -227,7 +227,7 @@ public class HomePageTest {
                 if (allWindows.size() > 1) {
                     System.out.println("ℹ️  Yeni tab açıldı");
                     for (String window : allWindows) {
-                        if (!window. equals(mainWindow)) {
+                        if (!window.equals(mainWindow)) {
                             driver.switchTo().window(window);
                             bekle(500);
                             System.out.println("✅ Yeni tab kapatılıyor...");
@@ -262,7 +262,7 @@ public class HomePageTest {
                 bekle(500);
 
                 WebElement timerElement = driver.findElement(applyNowTimer);
-                String timerText = timerElement. getText();
+                String timerText = timerElement.getText();
                 System.out.println("ℹ️  Timer metni: " + timerText);
 
                 clickElement(applyNowTimer);
@@ -270,7 +270,7 @@ public class HomePageTest {
                 bekle(1500);
 
                 if (isElementPresent(closeButtonDialog)) {
-                    System. out.println("✅ Dialog açıldı (X butonu görünüyor)\n");
+                    System.out.println("✅ Dialog açıldı (X butonu görünüyor)\n");
                 } else {
                     System.out.println("⚠️  Dialog açılmadı\n");
                 }
@@ -283,7 +283,7 @@ public class HomePageTest {
     }
 
     private void test8_CloseDialog() {
-        System.out. println("═══════════════════════════════════════");
+        System.out.println("═══════════════════════════════════════");
         System.out.println("TEST 8 - X BUTONU (SON DIALOG KAPAT)");
         System.out.println("═══════════════════════════════════════\n");
 
@@ -294,7 +294,7 @@ public class HomePageTest {
                 System.out.println("✅ X butonuna tıklandı, dialog kapatıldı\n");
                 bekle(1500);
             } else {
-                System. out.println("⚠️  X butonu bulunamadı\n");
+                System.out.println("⚠️  X butonu bulunamadı\n");
             }
         } catch (Exception e) {
             System.err.println("❌ TEST 8 Hatası: " + e.getMessage() + "\n");
@@ -305,7 +305,7 @@ public class HomePageTest {
 
     private boolean isElementPresent(By locator) {
         try {
-            wait.until(ExpectedConditions. presenceOfElementLocated(locator));
+            wait.until(ExpectedConditions.presenceOfElementLocated(locator));
             return true;
         } catch (Exception e) {
             return false;
@@ -314,11 +314,11 @@ public class HomePageTest {
 
     private void clickElement(By locator) {
         try {
-            WebElement element = wait.until(ExpectedConditions. elementToBeClickable(locator));
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
             element.click();
         } catch (Exception e) {
             WebElement element = driver.findElement(locator);
-            js.executeScript("arguments[0]. click();", element);
+            js.executeScript("arguments[0].click();", element);
         }
     }
 
@@ -355,21 +355,21 @@ public class HomePageTest {
         HomePageTest test = new HomePageTest();
 
         try {
-            System.out.println("\n" + "█". repeat(70));
-            System.out.println("█" + " ". repeat(68) + "█");
+            System.out.println("\n" + "█".repeat(70));
+            System.out.println("█" + " ".repeat(68) + "█");
             System.out.println("█  🚀 SELENIUM TEST AUTOMATION - 8 TEST SENARYOSU          █");
-            System.out. println("█" + " ".repeat(68) + "█");
-            System.out.println("█". repeat(70) + "\n");
+            System.out.println("█" + " ".repeat(68) + "█");
+            System.out.println("█".repeat(70) + "\n");
 
             System.out.println("📋 TEST SENARYOLARı:");
             System.out.println("  1️⃣  Accept Cookies (Privacy Policy)");
             System.out.println("  2️⃣  Apply Now Butonu");
-            System.out. println("  3️⃣  X Butonu (Dialog Kapat)");
+            System.out.println("  3️⃣  X Butonu (Dialog Kapat)");
             System.out.println("  4️⃣  Search Box ('ad' Yaz)");
             System.out.println("  5️⃣  Search Button (Ara ve Geri Dön)");
-            System. out.println("  6️⃣  WhatsApp Linki (Yeni Tab)");
-            System. out.println("  7️⃣  Apply Now Timer Butonu");
-            System.out. println("  8️⃣  X Butonu (Son Dialog Kapat)");
+            System.out.println("  6️⃣  WhatsApp Linki (Yeni Tab)");
+            System.out.println("  7️⃣  Apply Now Timer Butonu");
+            System.out.println("  8️⃣  X Butonu (Son Dialog Kapat)");
             System.out.println("\n" + "─".repeat(70) + "\n");
 
             test.calistir();
@@ -377,7 +377,7 @@ public class HomePageTest {
             System.out.println("\n" + "█".repeat(70));
             System.out.println("█" + " ".repeat(68) + "█");
             System.out.println("█  ✅ TÜM TESTLER BAŞARIYLA TAMAMLANDI!                          █");
-            System.out. println("█" + " ".repeat(68) + "█");
+            System.out.println("█" + " ".repeat(68) + "█");
             System.out.println("█".repeat(70) + "\n");
 
             test.bekle(3000);

@@ -1,15 +1,15 @@
-import io.github.bonigarcia.wdm. WebDriverManager;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org. openqa.selenium.*;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium. chrome.ChromeOptions;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org. openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ProgramsFilterTest {
 
@@ -38,9 +38,9 @@ public class ProgramsFilterTest {
     // Filter buttons - daha robust
     private final By universityBtn = By.xpath("//button[contains(@aria-label, 'Universities') or contains(., 'Universities')]");
     private final By facultiesBtn = By.xpath("//button[contains(@aria-label, 'Faculties') or contains(., 'Faculties')]");
-    private final By citiesBtn = By. xpath("//button[contains(@aria-label, 'Cities') or contains(., 'Cities')]");
+    private final By citiesBtn = By.xpath("//button[contains(@aria-label, 'Cities') or contains(., 'Cities')]");
     private final By degreeBtn = By.xpath("//button[contains(@aria-label, 'Degree') or contains(., 'Degree')]");
-    private final By languageBtn = By. xpath("//button[contains(@aria-label, 'Language') or contains(., 'Language')]");
+    private final By languageBtn = By.xpath("//button[contains(@aria-label, 'Language') or contains(., 'Language')]");
 
     // Command items - daha geniş
     private final By commandItems = By.cssSelector("div[data-slot='command-item'], [role='option']");
@@ -65,7 +65,7 @@ public class ProgramsFilterTest {
         options.addArguments("--no-sandbox");
 
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration. ofSeconds(20));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
         js = (JavascriptExecutor) driver;
 
@@ -99,7 +99,7 @@ public class ProgramsFilterTest {
             }
 
             // Go to programs
-            log("🔗 Navigating to Programs.. .");
+            log("🔗 Navigating to Programs...");
             click(programsLink);
             waitForPageLoad();
 
@@ -130,7 +130,7 @@ public class ProgramsFilterTest {
         printTestHeader(filterName);
 
         try {
-            // 1. Get initial count
+            // 1.Get initial count
             int initialCount = getCount();
             log("   📊 Initial:  " + formatCount(initialCount));
 
@@ -141,7 +141,7 @@ public class ProgramsFilterTest {
                 return;
             }
 
-            // 2. Open filter
+            // 2.Open filter
             log("   🔍 Opening " + filterName + " filter...");
             click(filterButton);
 
@@ -154,8 +154,8 @@ public class ProgramsFilterTest {
             }
             log("   ✓ Dropdown opened");
 
-            // 3. Select first visible option
-            log("   🔍 Selecting option.. .");
+            // 3.Select first visible option
+            log("   🔍 Selecting option...");
             WebElement selectedOption = selectFirstVisibleOption();
 
             if (selectedOption == null) {
@@ -166,14 +166,14 @@ public class ProgramsFilterTest {
                 return;
             }
 
-            // 4. Wait for filter to apply
+            // 4.Wait for filter to apply
             log("   ⏳ Waiting for filter to apply...");
             waitForCounterUpdate(initialCount);
 
             int filteredCount = getCount();
             log("   📊 After filter: " + formatCount(filteredCount));
 
-            // 5. Validate filter
+            // 5.Validate filter
             boolean filterWorks = validateFilter(initialCount, filteredCount);
 
             if (filterWorks) {
@@ -183,7 +183,7 @@ public class ProgramsFilterTest {
                 takeScreenshot("FILTER_FAILED_" + filterName);
             }
 
-            // 6. Clear filters
+            // 6.Clear filters
             log("   🗑️ Clearing filters...");
 
             if (! isPresent(clearButton, 2)) {
@@ -201,7 +201,7 @@ public class ProgramsFilterTest {
             int clearedCount = getCount();
             log("   📊 After clear: " + formatCount(clearedCount));
 
-            // 7. Validate clear
+            // 7.Validate clear
             boolean clearWorks = validateClear(initialCount, clearedCount, filteredCount);
 
             if (clearWorks) {
@@ -211,7 +211,7 @@ public class ProgramsFilterTest {
                 takeScreenshot("CLEAR_FAILED_" + filterName);
             }
 
-            // 8. Final result
+            // 8.Final result
             if (filterWorks && clearWorks) {
                 log("✅ " + filterName + " TEST PASSED");
                 passedTests++;
@@ -495,7 +495,7 @@ public class ProgramsFilterTest {
 
     private void printTestHeader(String filterName) {
         System.out.println("\n" + "=".repeat(70));
-        System.out.println("🧪 TEST: " + filterName. toUpperCase());
+        System.out.println("🧪 TEST: " + filterName.toUpperCase());
         System.out.println("=".repeat(70));
     }
 
@@ -506,9 +506,9 @@ public class ProgramsFilterTest {
         System.out.println("=".repeat(70));
         System.out.println();
 
-        System.out.println("█". repeat(70));
+        System.out.println("█".repeat(70));
         System.out.println("█  🧪 PROGRAMS FILTER TEST - 5 SCENARIOS                          █");
-        System.out. println("█". repeat(70));
+        System.out.println("█".repeat(70));
         System.out.println();
 
         System.out.println("📋 TEST SCENARIOS:");
@@ -516,7 +516,7 @@ public class ProgramsFilterTest {
         System.out.println("  2️⃣ Faculties Filter");
         System.out.println("  3️⃣ Cities Filter");
         System.out.println("  4️⃣ Degree Types Filter");
-        System.out. println("  5️⃣ Language Filter");
+        System.out.println("  5️⃣ Language Filter");
         System.out.println();
         System.out.println("─".repeat(70));
         System.out.println();
@@ -525,12 +525,12 @@ public class ProgramsFilterTest {
     private void printSummary() {
         System.out.println("\n\n" + "█".repeat(70));
         System.out.println("█  📊 SUMMARY                                                     █");
-        System.out. println("█". repeat(70));
+        System.out.println("█".repeat(70));
         System.out.println();
         System.out.println("   🧪 Total:  " + totalTests);
         System.out.println("   ✅ Passed: " + passedTests);
         System.out.println("   ❌ Failed: " + failedTests);
-        System.out. println();
+        System.out.println();
 
         double rate = totalTests > 0 ? (passedTests * 100.0 / totalTests) : 0;
         System.out.println("   📈 Success Rate: " + String.format("%.2f", rate) + "%");

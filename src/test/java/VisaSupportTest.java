@@ -1,11 +1,11 @@
-import io.github.bonigarcia. wdm.WebDriverManager;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import java.time.Duration;
 import java.util.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium. chrome.ChromeOptions;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org. openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class VisaSupportTest {
 
@@ -91,7 +91,7 @@ public class VisaSupportTest {
 
         acceptCookies();
 
-        System.out.println("🔍 Visa Support linkini tapır.. .");
+        System.out.println("🔍 Visa Support linkini tapır...");
         WebElement visaLink = wait.until(ExpectedConditions.elementToBeClickable(visaSupportLink));
         scrollToElement(visaLink);
         System.out.println("🖱️ Visa Support linkə click edilir...");
@@ -99,15 +99,15 @@ public class VisaSupportTest {
 
         waitForPageReady();
         sleep(1500);
-        System.out. println("✅ Visa Support səhifəsi açıldı:  " + driver.getCurrentUrl());
+        System.out.println("✅ Visa Support səhifəsi açıldı:  " + driver.getCurrentUrl());
         System.out.println("═".repeat(70) + "\n");
     }
 
     private void testAllPages() {
         for (int page = 1; page <= TOTAL_PAGES; page++) {
-            System.out. println("\n" + "█".repeat(70));
+            System.out.println("\n" + "█".repeat(70));
             System.out.println("█  📄 SƏHİFƏ " + page + "/" + TOTAL_PAGES + "                                                     █");
-            System.out.println("█". repeat(70) + "\n");
+            System.out.println("█".repeat(70) + "\n");
 
             int expectedCountries = (page == TOTAL_PAGES) ? LAST_PAGE_COUNTRIES : COUNTRIES_PER_PAGE;
             testCurrentPage(page, expectedCountries);
@@ -126,15 +126,15 @@ public class VisaSupportTest {
             // ✅ Səhifə nömrəsini yoxla və lazım olsa düzəlt
             int currentPage = getCurrentPageNumber();
             if (currentPage != pageNumber) {
-                System.out. println("⚠️ Səhifə nömrəsi uyğun gəlmir!  Cari:  " + currentPage + ", Gözlənilən: " + pageNumber);
-                System.out.println("🔄 Düzgün səhifəyə keçid edilir.. .");
+                System.out.println("⚠️ Səhifə nömrəsi uyğun gəlmir!  Cari:  " + currentPage + ", Gözlənilən: " + pageNumber);
+                System.out.println("🔄 Düzgün səhifəyə keçid edilir...");
                 String correctUrl = VISA_SUPPORT_BASE + (pageNumber > 1 ? "?page=" + pageNumber : "");
                 driver.get(correctUrl);
                 waitForPageReady();
                 sleep(1500);
             }
 
-            js. executeScript("window.scrollTo(0, 500);");
+            js.executeScript("window.scrollTo(0, 500);");
             sleep(500);
 
             List<WebElement> cards = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(countryCards));
@@ -172,19 +172,19 @@ public class VisaSupportTest {
 
                 if (! currentUrl.startsWith(VISA_SUPPORT_BASE) ||
                         !currentUrl.contains("/study-visa-support-in-turkey")) {
-                    System.out.println("🔙 Visa Support səhifəsinə qayıdır.. .");
+                    System.out.println("🔙 Visa Support səhifəsinə qayıdır...");
                     driver.get(expectedUrl);
                     waitForPageReady();
                     sleep(1500);
                 }
 
-                js. executeScript("window.scrollTo(0, 500);");
+                js.executeScript("window.scrollTo(0, 500);");
                 sleep(800);
 
                 List<WebElement> cards = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(countryCards));
 
                 if (index >= cards.size()) {
-                    System. out.println("⚠️ Ölkə #" + (index + 1) + " tapılmadı");
+                    System.out.println("⚠️ Ölkə #" + (index + 1) + " tapılmadı");
                     return;
                 }
 
@@ -192,7 +192,7 @@ public class VisaSupportTest {
                 countryName = getCountryName(card);
                 totalCountries++;
 
-                System.out.println("━". repeat(70));
+                System.out.println("━".repeat(70));
                 System.out.println("🌍 Səhifə " + pageNumber + " | Ölkə " + (index + 1) + "/" + totalOnPage + ": " + countryName);
                 System.out.println("   Ümumi progress: " + totalCountries + "/" + TOTAL_COUNTRIES);
                 System.out.println("━".repeat(70));
@@ -200,17 +200,17 @@ public class VisaSupportTest {
                 scrollToElement(card);
 
                 if (retry > 0) {
-                    System. out.println("🔄 Retry " + retry + "/" + maxRetries);
+                    System.out.println("🔄 Retry " + retry + "/" + maxRetries);
                 }
 
-                System.out.println("🖱️ \"" + countryName + "\" ölkəsinə click edilir.. .");
+                System.out.println("🖱️ \"" + countryName + "\" ölkəsinə click edilir...");
 
                 String beforeClickUrl = driver.getCurrentUrl();
                 clickElement(card);
 
                 // URL dəyişməsini AKTIV gözlə
                 try {
-                    wait.until(driver1 -> ! driver. getCurrentUrl().equals(beforeClickUrl));
+                    wait.until(driver1 -> ! driver.getCurrentUrl().equals(beforeClickUrl));
                     System.out.println("   ⏳ URL dəyişdi, səhifə yüklənir...");
                 } catch (Exception e) {
                     System.out.println("   ⚠️ URL dəyişmədi " + (retry < maxRetries ? "- retry ediləcək" : ""));
@@ -257,7 +257,7 @@ public class VisaSupportTest {
                     System.out.println();
 
                     // Visa Support-a qayıt
-                    driver. get(expectedUrl);
+                    driver.get(expectedUrl);
                     waitForPageReady();
                     sleep(800);
 
@@ -283,7 +283,7 @@ public class VisaSupportTest {
 
                 // Documents table-ı yoxla
                 if (checkDocumentsTable(countryName)) {
-                    System. out.println("✅ Bütün tələb olunan sənədlər mövcuddur (" + REQUIRED_DOCUMENTS. size() + " ədəd)");
+                    System.out.println("✅ Bütün tələb olunan sənədlər mövcuddur (" + REQUIRED_DOCUMENTS.size() + " ədəd)");
                     successfulTests++;
                 } else {
                     System.out.println("❌ Bəzi sənədlər əksikdir!");
@@ -293,7 +293,7 @@ public class VisaSupportTest {
                 System.out.println();
 
                 // Visa Support səhifəsinə qayıt
-                System.out.println("🔙 Visa Support səhifəsinə qayıdır.. .");
+                System.out.println("🔙 Visa Support səhifəsinə qayıdır...");
                 driver.get(expectedUrl);
                 waitForPageReady();
                 sleep(800);
@@ -328,7 +328,7 @@ public class VisaSupportTest {
                     waitForPageReady();
                     sleep(800);
                 } catch (Exception ex) {
-                    System.err. println("⚠️ Final Visa Support qayıtma xətası:  " + ex.getMessage());
+                    System.err.println("⚠️ Final Visa Support qayıtma xətası:  " + ex.getMessage());
                 }
 
                 return;
@@ -339,7 +339,7 @@ public class VisaSupportTest {
     // ✅ ERROR PAGE DETECTION
     private boolean isErrorPage() {
         try {
-            // 1. Table varsa = normal səhifədir
+            // 1.Table varsa = normal səhifədir
             try {
                 driver.findElement(documentsTable);
                 return false;
@@ -347,12 +347,12 @@ public class VisaSupportTest {
                 // Table yoxdur, davam et
             }
 
-            // 2. Specific error elements
+            // 2.Specific error elements
             List<By> errorSelectors = Arrays.asList(
                     By.xpath("//*[contains(text(), 'Error')]"),
                     By.xpath("//*[contains(text(), '404')]"),
                     By.xpath("//*[contains(text(), '500')]"),
-                    By. cssSelector("[class*='error-page']"),
+                    By.cssSelector("[class*='error-page']"),
                     By.cssSelector("[class*='error-message']")
             );
 
@@ -368,14 +368,14 @@ public class VisaSupportTest {
                 }
             }
 
-            // 3. Page title
+            // 3.Page title
             String title = driver.getTitle().toLowerCase();
             if (title.contains("error") || title.contains("not found") || title.contains("404")) {
-                System.out. println("⚠️ Error in title: " + title);
+                System.out.println("⚠️ Error in title: " + title);
                 return true;
             }
 
-            // 4. Body text - error keywords
+            // 4.Body text - error keywords
             WebElement body = driver.findElement(By.tagName("body"));
             String pageText = body.getText().toLowerCase();
 
@@ -390,14 +390,14 @@ public class VisaSupportTest {
 
             for (String keyword : errorKeywords) {
                 if (pageText.contains(keyword)) {
-                    System. out.println("⚠️ Error keyword detected: '" + keyword + "'");
+                    System.out.println("⚠️ Error keyword detected: '" + keyword + "'");
                     return true;
                 }
             }
 
-            // 5. Content çox az
+            // 5.Content çox az
             if (pageText.length() < 100) {
-                System.out. println("⚠️ Content ÇOX azdır: " + pageText.length() + " simvol");
+                System.out.println("⚠️ Content ÇOX azdır: " + pageText.length() + " simvol");
                 return true;
             }
 
@@ -417,10 +417,10 @@ public class VisaSupportTest {
             WebElement table;
             try {
                 table = new WebDriverWait(driver, Duration.ofSeconds(20))
-                        .until(ExpectedConditions.presenceOfElementLocated(documentsTable));
+                       .until(ExpectedConditions.presenceOfElementLocated(documentsTable));
                 System.out.println("📋 Documents table tapıldı");
             } catch (Exception e) {
-                System. out.println("⚠️ Documents table tapılmadı");
+                System.out.println("⚠️ Documents table tapılmadı");
 
                 // "No visa required" yoxla
                 try {
@@ -454,8 +454,8 @@ public class VisaSupportTest {
                 try {
                     WebElement docCell = row.findElement(By.cssSelector("td[data-slot='table-cell']"));
                     String docName = docCell.getText()
-                            .trim()
-                            .replaceAll("\\s+", " ");
+                           .trim()
+                           .replaceAll("\\s+", " ");
 
                     if (! docName.isEmpty()) {
                         foundDocuments.add(docName);
@@ -486,7 +486,7 @@ public class VisaSupportTest {
             if (!missing.isEmpty()) {
                 String missingInfo = countryName + ": " + String.join(", ", missing);
                 missingDocuments.add(missingInfo);
-                System.out. println("❌ Əksik sənədlər:");
+                System.out.println("❌ Əksik sənədlər:");
                 for (String doc : missing) {
                     System.out.println("   - " + doc);
                 }
@@ -529,7 +529,7 @@ public class VisaSupportTest {
             int afterPage = getCurrentPageNumber();
 
             if (afterUrl.contains("?page=" + nextPageNum) || afterPage == nextPageNum) {
-                System. out.println("✅ Növbəti səhifə açıldı\n");
+                System.out.println("✅ Növbəti səhifə açıldı\n");
             } else {
                 System.err.println("❌ Səhifə keçidi uğursuz!  URL: " + afterUrl + "\n");
             }
@@ -542,29 +542,29 @@ public class VisaSupportTest {
     // ✅ Current page number
     private int getCurrentPageNumber() {
         try {
-            // 1. URL-dən oxu
+            // 1.URL-dən oxu
             String currentUrl = driver.getCurrentUrl();
-            if (currentUrl. contains("?page=")) {
+            if (currentUrl.contains("?page=")) {
                 String[] parts = currentUrl.split("\\?page=");
                 try {
-                    return Integer.parseInt(parts[1]. split("&")[0]);
+                    return Integer.parseInt(parts[1].split("&")[0]);
                 } catch (Exception e) {
                 }
             }
 
-            // 2. Active pagination button
+            // 2.Active pagination button
             try {
                 WebElement activePage = driver.findElement(
                         By.cssSelector("a[data-slot='pagination-link'][data-active='true']")
                 );
                 String pageText = activePage.getText().trim();
-                if (pageText. matches("\\d+")) {
+                if (pageText.matches("\\d+")) {
                     return Integer.parseInt(pageText);
                 }
             } catch (Exception e) {
             }
 
-            // 3. Default
+            // 3.Default
             return 1;
 
         } catch (Exception e) {
@@ -575,7 +575,7 @@ public class VisaSupportTest {
     private String getCountryName(WebElement card) {
         try {
             try {
-                WebElement span = card.findElement(By. cssSelector("span. text-md"));
+                WebElement span = card.findElement(By.cssSelector("span.text-md"));
                 String name = span.getText().trim();
                 if (! name.isEmpty()) {
                     return name;
@@ -584,10 +584,10 @@ public class VisaSupportTest {
             }
 
             try {
-                WebElement img = card.findElement(By. tagName("img"));
+                WebElement img = card.findElement(By.tagName("img"));
                 String alt = img.getAttribute("alt");
                 if (alt != null && !alt.isEmpty()) {
-                    return alt. replace(" flag", "").trim();
+                    return alt.replace(" flag", "").trim();
                 }
             } catch (Exception ignored) {
             }
@@ -612,8 +612,8 @@ public class VisaSupportTest {
 
     private void acceptCookies() {
         try {
-            System.out.println("🍪 Cookie qəbul edilir.. .");
-            WebElement cookieBtn = wait.until(ExpectedConditions. elementToBeClickable(cookieAcceptButton));
+            System.out.println("🍪 Cookie qəbul edilir...");
+            WebElement cookieBtn = wait.until(ExpectedConditions.elementToBeClickable(cookieAcceptButton));
             clickElement(cookieBtn);
             sleep(500);
             System.out.println("✅ Cookie qəbul edildi\n");
@@ -631,7 +631,7 @@ public class VisaSupportTest {
         try {
             element.click();
         } catch (Exception e) {
-            js.executeScript("arguments[0]. click();", element);
+            js.executeScript("arguments[0].click();", element);
         }
     }
 
@@ -651,10 +651,10 @@ public class VisaSupportTest {
 
     private void printHeader() {
         System.out.println("\n" + "█".repeat(70));
-        System.out.println("█" + " ". repeat(68) + "█");
+        System.out.println("█" + " ".repeat(68) + "█");
         System.out.println("█  🛂 VISA SUPPORT TEST - 193 COUNTRIES                           █");
-        System.out. println("█" + " ".repeat(68) + "█");
-        System.out.println("█". repeat(70) + "\n");
+        System.out.println("█" + " ".repeat(68) + "█");
+        System.out.println("█".repeat(70) + "\n");
     }
 
     private void printSummary() {
@@ -673,7 +673,7 @@ public class VisaSupportTest {
             System.out.println("🔴 SƏHİFƏ AÇILMAYAN ÖLKƏLƏR:");
             System.out.println("─".repeat(70));
             for (String error : pageErrors) {
-                System.out. println("   " + error);
+                System.out.println("   " + error);
             }
         }
 
@@ -682,18 +682,18 @@ public class VisaSupportTest {
             System.out.println("⚠️ ƏKSİK SƏNƏDLƏR OLAN ÖLKƏLƏR:");
             System.out.println("─".repeat(70));
             for (String missing : missingDocuments) {
-                System.out. println("   " + missing);
+                System.out.println("   " + missing);
             }
         }
 
         System.out.println("\n" + "█".repeat(70));
         System.out.println("█  ✅ TEST TAMAMLANDI!                                                  █");
-        System.out. println("█".repeat(70) + "\n");
+        System.out.println("█".repeat(70) + "\n");
     }
 
     private void quit() {
         if (driver != null) {
-            System.out.println("🔚 Browser bağlanır.. .");
+            System.out.println("🔚 Browser bağlanır...");
             driver.quit();
         }
     }
