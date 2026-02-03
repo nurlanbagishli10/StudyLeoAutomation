@@ -82,7 +82,7 @@ public class UniversitiesTest {
     }
 
     private void initializeLog() {
-        DateTimeFormatter formatter = DateTimeFormatter. ofPattern("yyyy-MM-dd_HH-mm-ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String timestamp = LocalDateTime.now().format(formatter);
 
         logFileName = "UniversitiesTest_" + timestamp + ".txt";
@@ -97,7 +97,7 @@ public class UniversitiesTest {
 
         log("═".repeat(70));
         log("🎓 UNIVERSITIES TEST - AUTOMATED TESTING");
-        log("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm: ss")));
+        log("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         log("═".repeat(70));
     }
 
@@ -342,7 +342,7 @@ public class UniversitiesTest {
                     if (href == null || href.isEmpty() ||
                             ! href.contains("/universities/") ||
                             href.endsWith("/universities") ||
-                            href. contains("#")) {
+                            href.contains("#")) {
                         continue;
                     }
 
@@ -358,7 +358,7 @@ public class UniversitiesTest {
                 }
             }
 
-            int count = universityUrls. size();
+            int count = universityUrls.size();
             log("\n🔍 Found " + count + " universities on this page\n");
 
             String listPageUrl = driver.getCurrentUrl();
@@ -496,13 +496,13 @@ public class UniversitiesTest {
                             try {
                                 element.click();
                             } catch (Exception e) {
-                                js.executeScript("arguments[0]. click();", element);
+                                js.executeScript("arguments[0].click();", element);
                             }
 
                             sleep(1500);
 
                             String afterUrl = driver.getCurrentUrl();
-                            if (afterUrl. contains("page=" + targetPage)) {
+                            if (afterUrl.contains("page=" + targetPage)) {
                                 log("✅ Navigated successfully (button click)");
 
                                 js.executeScript("window.scrollTo(0, document. body.scrollHeight);");
@@ -536,7 +536,7 @@ public class UniversitiesTest {
                             ExpectedConditions.elementToBeClickable(selector)
                     );
 
-                    js.executeScript("arguments[0]. scrollIntoView({block: 'center'});", pageButton);
+                    js.executeScript("arguments[0].scrollIntoView({block: 'center'});", pageButton);
                     sleep(300);
 
                     try {
@@ -661,14 +661,14 @@ public class UniversitiesTest {
             }
 
             try {
-                WebElement body = driver.findElement(By. tagName("body"));
+                WebElement body = driver.findElement(By.tagName("body"));
                 String bodyText = body.getText();
 
                 if (bodyText != null && bodyText.length() > 100) {
                     logDebug("   ✓ Content OK (" + bodyText.length() + " chars)");
                     return true;
                 } else {
-                    logError("Content too short: " + (bodyText != null ? bodyText. length() : "null") + " chars");
+                    logError("Content too short: " + (bodyText != null ? bodyText.length() : "null") + " chars");
 
                     // ✅ Content qısa halında screenshot (burda problem var)
                     System.out.println("🔴 CONTENT PROBLEM - Screenshot çəkilir.. .");
@@ -699,7 +699,7 @@ public class UniversitiesTest {
         try {
             String ariaLabel = card.getAttribute("aria-label");
             if (ariaLabel != null && ! ariaLabel.isEmpty()) {
-                return ariaLabel. replace("View details for ", "");
+                return ariaLabel.replace("View details for ", "");
             }
 
             try {
@@ -785,7 +785,7 @@ public class UniversitiesTest {
             element.click();
         } catch (Exception e) {
             WebElement element = driver.findElement(locator);
-            js.executeScript("arguments[0]. click();", element);
+            js.executeScript("arguments[0].click();", element);
         }
     }
 

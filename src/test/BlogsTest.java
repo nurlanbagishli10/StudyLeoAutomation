@@ -1,25 +1,25 @@
 import org.openqa.selenium.By;
-import org.openqa. selenium.JavascriptExecutor;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa. selenium.WebElement;
-import org.openqa.selenium.chrome. ChromeDriver;
-import org. openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui. ExpectedCondition;
-import org.openqa. selenium.support.ui.ExpectedConditions;
-import org. openqa.selenium.support.ui.WebDriverWait;
-import io.github.bonigarcia. wdm.WebDriverManager;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file. Paths;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time. Duration;
-import java.time. LocalDateTime;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class BlogsTest {
     }
 
     private void initializeDriver() {
-        WebDriverManager. chromedriver().setup();
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
@@ -77,20 +77,20 @@ public class BlogsTest {
     }
 
     private void initializeLog() {
-        DateTimeFormatter formatter = DateTimeFormatter. ofPattern("yyyy-MM-dd_HH-mm-ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String timestamp = LocalDateTime.now().format(formatter);
 
-        logFileName = "BlogsTest_" + timestamp + ". txt";
+        logFileName = "BlogsTest_" + timestamp + ".txt";
         screenshotFolder = "screenshots_blogs_" + timestamp;
 
         try {
             Files.createDirectories(Paths.get(screenshotFolder));
             log("📁 Screenshot folder:  " + screenshotFolder);
         } catch (IOException e) {
-            logError("Screenshot folder creation failed: " + e. getMessage());
+            logError("Screenshot folder creation failed: " + e.getMessage());
         }
 
-        log("═". repeat(70));
+        log("═".repeat(70));
         log("📰 BLOGS TEST - AUTOMATED TESTING");
         log("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         log("═".repeat(70));
@@ -692,7 +692,7 @@ public class BlogsTest {
     }
 
     private void scrollToElement(WebElement element) {
-        js.executeScript("arguments[0]. scrollIntoView({block: 'center'});", element);
+        js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
         sleep(500);
     }
 
@@ -783,7 +783,7 @@ public class BlogsTest {
                 link.click();
                 log("   ✓ Clicked with standard click");
             } catch (Exception e) {
-                js.executeScript("arguments[0]. click();", link);
+                js.executeScript("arguments[0].click();", link);
                 log("   ✓ Clicked with JavaScript");
             }
 
