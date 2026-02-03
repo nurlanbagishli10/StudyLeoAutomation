@@ -117,23 +117,24 @@ mvn compile exec:java -Dexec.mainClass="VisaSupportTest"
 
 ```
 studyleo-automation/
-├── pom.xml                     # Maven konfiqurasiya faylı
+├── pom.xml                          # Maven konfiqurasiya faylı
 ├── src/
 │   └── test/
-│       ├── TestRunner.java          # İnteraktiv test runner
-│       ├── HomePageTest.java        # Ana səhifə testləri
-│       ├── UniversitiesTest.java    # Universitetlər səhifəsi testləri
-│       ├── ProgramsFilterTest.java  # Proqramlar səhifəsi testləri
-│       ├── BlogsTest.java           # Bloqlar səhifəsi testləri
-│       └── VisaSupportTest.java     # Viza dəstəyi səhifəsi testləri
-├── logs/                       # Test log faylları
-└── screenshots/                # Test zamanı çəkilən ekran şəkilləri
+│       └── java/
+│           ├── TestRunner.java          # İnteraktiv test runner
+│           ├── HomePageTest.java        # Ana səhifə testləri
+│           ├── UniversitiesTest.java    # Universitetlər səhifəsi testləri
+│           ├── ProgramsFilterTest.java  # Proqramlar səhifəsi testləri
+│           ├── BlogsTest.java           # Bloqlar səhifəsi testləri
+│           └── VisaSupportTest.java     # Viza dəstəyi səhifəsi testləri
+├── logs/                            # Test log faylları
+└── screenshots/                     # Test zamanı çəkilən ekran şəkilləri
 ```
 
 ## 📊 Test Nəticələri
 
 Hər test işə salındıqda:
-- **Logs:** `logs/` qovluğunda `[TestAdı]_[tarix_saat].txt` formatında saxlanılır
+- **Logs:** `logs/` qovluğunda saxlanılır (məsələn: `HomePageTest_2026-02-03_14-30-45.txt`)
 - **Screenshots:** `screenshots/` qovluğunda xəta baş verdikdə ekran şəkilləri saxlanılır
 
 ## 🔧 Konfiqurasiya
