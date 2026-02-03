@@ -173,7 +173,10 @@ public class VisaSupportTest {
                 if (text.contains("Showing") && text.contains("of")) {
                     // "Showing 20 of 190" -> extract 20
                     String[] parts = text.split(" ");
-                    return Integer.parseInt(parts[1]);
+                    // Add bounds checking to prevent ArrayIndexOutOfBoundsException
+                    if (parts.length > 1) {
+                        return Integer.parseInt(parts[1]);
+                    }
                 }
             }
             return -1;
@@ -304,7 +307,8 @@ public class VisaSupportTest {
             String currentUrl = driver.getCurrentUrl();
             log("   📍 Current URL: " + currentUrl);
             
-            if (currentUrl.contains("/visa-support/") || currentUrl.contains("/study-visa")) {
+            // Check if URL contains visa support pattern (both patterns needed for different country URL formats)
+            if (currentUrl.contains("/visa-support/") || currentUrl.contains("/study-visa-support-in-turkey/")) {
                 log("✅ PASS - Country page opened successfully (HTTP 200)");
                 passedTests++;
             } else {
@@ -394,7 +398,7 @@ public class VisaSupportTest {
             js.executeScript("arguments[0].click();", perPageBtn);
             sleep(500);
             
-            // Find and click "50" option (4th from top)
+            // Find and click "50" option
             log("   ✓ Selecting 50...");
             // Look for option containing "50"
             List<WebElement> options = driver.findElements(By.cssSelector("[role='option'], [role='menuitem'], li"));
@@ -402,7 +406,8 @@ public class VisaSupportTest {
             
             for (WebElement option : options) {
                 String optionText = option.getText().trim();
-                if (optionText.contains("50")) {
+                // Use exact match to avoid matching "150" or "500"
+                if (optionText.equals("50")) {
                     js.executeScript("arguments[0].click();", option);
                     found = true;
                     log("   ✅ Selected: 50");
@@ -411,10 +416,11 @@ public class VisaSupportTest {
             }
             
             if (!found) {
-                // Try clicking 4th option directly
+                // Fallback: Try clicking 4th option directly (index 3)
+                // Expected dropdown order: 20, 30, 40, 50 - so 50 is at index 3
                 if (options.size() >= 4) {
                     js.executeScript("arguments[0].click();", options.get(3));
-                    log("   ✅ Selected 4th option (50)");
+                    log("   ✅ Selected 4th option (assumed to be 50)");
                 }
             }
             
