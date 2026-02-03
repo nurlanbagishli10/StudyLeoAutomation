@@ -45,7 +45,7 @@ public class UniversitiesTest {
     // Filter locators
     private By resultCounter = By.cssSelector("span[aria-live='polite']");
     private By searchBox = By.cssSelector("input[data-slot='input'][aria-label='Search Universities']");
-    private By hasQsRankingBtn = By.id("has-qs-ranking");
+    private By hasQsRankingBtn = By.id("has-scholarships");
     private By hasDormitoryBtn = By.id("has-dormitory");
     private By canApplyBtn = By.id("can-apply");
     private By citiesDropdown = By.id("cities");
