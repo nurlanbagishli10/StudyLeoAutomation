@@ -51,7 +51,7 @@ public class VisaSupportTest {
     private By resetButton = By.xpath("//button[@data-slot='button']//span[normalize-space(text())='Reset']");
     
     // Country card
-    private By countryCardLocator = By.cssSelector("main section ul li a[href*='/visa-support/']");
+    private By countryCardLocator = By.xpath("/html/body/main/div/section/div/div[2]/ul/li/a[1]");
     
     // Pagination
     private By paginationButtons = By.cssSelector("a[data-slot='pagination-link']");
@@ -407,7 +407,7 @@ public class VisaSupportTest {
             for (WebElement option : options) {
                 String optionText = option.getText().trim();
                 // Use exact match to avoid matching "150" or "500"
-                if (optionText.equals("50")) {
+                if (optionText.equals("50 Per Page")) {
                     js.executeScript("arguments[0].click();", option);
                     found = true;
                     log("   ✅ Selected: 50");
