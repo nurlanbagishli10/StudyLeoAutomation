@@ -399,9 +399,9 @@ public class UniversitiesTest {
 
             // Select first option from dropdown
             log("   🖱️ Opening " + dropdownName + " dropdown...");
-            boolean selected = selectFirstDropdownOption(dropdownLocator);
+            boolean optionSelected = selectFirstDropdownOption(dropdownLocator);
 
-            if (!selected) {
+            if (!optionSelected) {
                 logError("No valid option found in dropdown");
                 failedFilters++;
                 takeScreenshot(dropdownName.replaceAll(" ", "_") + "_NO_OPTIONS");
@@ -461,9 +461,9 @@ public class UniversitiesTest {
 
             // Select first option from dropdown
             log("   🖱️ Opening Sort By dropdown...");
-            boolean selected = selectFirstDropdownOption(sortByDropdown);
+            boolean optionSelected = selectFirstDropdownOption(sortByDropdown);
 
-            if (!selected) {
+            if (!optionSelected) {
                 logError("No valid option found in dropdown");
                 failedFilters++;
                 takeScreenshot("SORT_BY_NO_OPTIONS");
