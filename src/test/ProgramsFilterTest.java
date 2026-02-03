@@ -41,19 +41,19 @@ public class ProgramsFilterTest {
     // Locators
     private By acceptCookiesButton = By.cssSelector("button[data-testid='cookie-banner-accept-button']");
     private By programsLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/programs']");
-    
+
     // Result counter - "6,588 Programs Found"
     private By resultCounter = By.cssSelector("span.text-xs.text-gray-500.font-medium");
-    
+
     // Search box
     private By searchBox = By.cssSelector("input[data-slot='input'][aria-label='Search for a program']");
-    
-    // Clear/Eraser button
-    private By clearButton = By.xpath("//button[@data-slot='button' and .//svg[contains(@class, 'lucide-eraser')]]");
-    
+
+    // Eraser button - JavaScript click lazımdır
+    private By eraserButton = By.cssSelector("button[data-slot='button'].text-destructive");
+
     // Has Discount button
     private By hasDiscountBtn = By.id("has-discount");
-    
+
     // 6 Dropdowns
     private By allUniversitiesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Universities']]");
     private By allFacultiesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Faculties']]");
@@ -61,10 +61,10 @@ public class ProgramsFilterTest {
     private By allDegreeTypesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Degree Types']]");
     private By allLanguagesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Languages']]");
     private By anyDurationDropdown = By.xpath("//button[@data-slot='select-trigger' and .//span[normalize-space(text())='Any Duration']]");
-    
+
     // Sort By dropdown
     private By sortByDropdown = By.xpath("//button[@data-slot='select-trigger' and .//span[normalize-space(text())='Sort By']]");
-    
+
     // Dropdown options
     private By dropdownOptions = By.cssSelector("div[data-slot='command-item'], [role='option']");
 
@@ -157,7 +157,7 @@ public class ProgramsFilterTest {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -183,21 +183,21 @@ public class ProgramsFilterTest {
         try {
             // Try to find span with "Programs Found" text
             List<WebElement> spans = driver.findElements(resultCounter);
-            
+
             for (WebElement span : spans) {
                 String text = span.getText().trim();
-                
+
                 if (text.contains("Programs Found")) {
                     // Extract number: "6,588 Programs Found" -> 6588
                     // Remove everything except digits
                     String numStr = text.replaceAll("[^0-9]", "");
-                    
+
                     if (!numStr.isEmpty()) {
                         return Integer.parseInt(numStr);
                     }
                 }
             }
-            
+
             return -1;
 
         } catch (Exception e) {
@@ -225,17 +225,42 @@ public class ProgramsFilterTest {
     }
 
     /**
-     * Click the eraser/clear button to reset all filters
+     * Eraser buttonunu tap və JavaScript ilə click et
+     * Normal click işləmir çünki element overlay/modal altındadır
      */
-    private void clickClearButton() {
+    private void clickEraserButton() {
         try {
             log("🧹 Clearing filters...");
-            WebElement clearBtn = wait.until(ExpectedConditions.elementToBeClickable(clearButton));
-            clearBtn.click();
-            sleep(1000);
-            log("   ✓ Filters cleared");
+
+            // Bütün text-destructive buttonları tap
+            List<WebElement> destructiveButtons = driver.findElements(eraserButton);
+
+            if (destructiveButtons.isEmpty()) {
+                log("   ⚠️ No destructive buttons found");
+                return;
+            }
+
+            // Eraser SVG icon olanı tap
+            for (WebElement btn : destructiveButtons) {
+                List<WebElement> eraserSvg = btn.findElements(By.cssSelector("svg.lucide-eraser"));
+
+                if (!eraserSvg.isEmpty()) {
+                    // Scroll into view
+                    js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", btn);
+                    sleep(300);
+
+                    // JavaScript click (overlay problemi yoxdur)
+                    js.executeScript("arguments[0].click();", btn);
+                    log("   ✅ Eraser button clicked (via JavaScript)");
+                    sleep(500); // Animation bitsin
+                    return;
+                }
+            }
+
+            log("   ⚠️ Eraser button (with SVG icon) not found");
+
         } catch (Exception e) {
-            logError("Failed to click clear button: " + e.getMessage());
+            logError("Failed to click eraser button: " + e.getMessage());
         }
     }
 
@@ -247,7 +272,9 @@ public class ProgramsFilterTest {
         try {
             // Click dropdown to open
             WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(dropdownLocator));
-            dropdown.click();
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown);
+            sleep(300);
+            js.executeScript("arguments[0].click();", dropdown);
             sleep(500);
 
             // Wait for options to appear
@@ -263,15 +290,15 @@ public class ProgramsFilterTest {
                 try {
                     if (option.isDisplayed() && option.isEnabled()) {
                         String optionText = option.getText();
-                        
+
                         // Skip "All" or empty options
-                        if (optionText.isEmpty() || 
-                            optionText.toLowerCase().startsWith(OPTION_PREFIX_ALL) ||
-                            optionText.equalsIgnoreCase(OPTION_ANY_DURATION)) {
+                        if (optionText.isEmpty() ||
+                                optionText.toLowerCase().startsWith(OPTION_PREFIX_ALL) ||
+                                optionText.equalsIgnoreCase(OPTION_ANY_DURATION)) {
                             continue;
                         }
 
-                        option.click();
+                        js.executeScript("arguments[0].click();", option);
                         log("   ✓ Selected: " + optionText);
                         return true;
                     }
@@ -314,6 +341,8 @@ public class ProgramsFilterTest {
             // Type in search box
             log("   Searching for: \"engineering\"");
             WebElement searchInput = wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", searchInput);
+            sleep(300);
             searchInput.clear();
             searchInput.sendKeys("engineering");
             sleep(500);
@@ -335,8 +364,8 @@ public class ProgramsFilterTest {
                 takeScreenshot("SEARCH_FAILED");
             }
 
-            // Clear filters
-            clickClearButton();
+            // Clear filters with eraser button
+            clickEraserButton();
             sleep(500);
 
         } catch (Exception e) {
@@ -367,10 +396,12 @@ public class ProgramsFilterTest {
                 return;
             }
 
-            // Click button
+            // Click button with JavaScript
             log("   🖱️  Clicking Has Discount button...");
-            WebElement button = wait.until(ExpectedConditions.elementToBeClickable(hasDiscountBtn));
-            button.click();
+            WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(hasDiscountBtn));
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", button);
+            sleep(300);
+            js.executeScript("arguments[0].click();", button);
             sleep(1000);
 
             // Wait for results to update
@@ -393,8 +424,8 @@ public class ProgramsFilterTest {
                 takeScreenshot("DISCOUNT_FAILED");
             }
 
-            // Clear filters
-            clickClearButton();
+            // Clear filters with eraser button
+            clickEraserButton();
             sleep(500);
 
         } catch (Exception e) {
@@ -455,8 +486,8 @@ public class ProgramsFilterTest {
                 takeScreenshot(dropdownName.replaceAll(" ", "_") + "_FAILED");
             }
 
-            // Clear filters
-            clickClearButton();
+            // Clear filters with eraser button
+            clickEraserButton();
             sleep(500);
 
         } catch (Exception e) {
@@ -487,10 +518,12 @@ public class ProgramsFilterTest {
                 return;
             }
 
-            // Open dropdown
+            // Open dropdown with JavaScript
             log("   🖱️  Opening Sort By dropdown...");
-            WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(sortByDropdown));
-            dropdown.click();
+            WebElement dropdown = wait.until(ExpectedConditions.presenceOfElementLocated(sortByDropdown));
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown);
+            sleep(300);
+            js.executeScript("arguments[0].click();", dropdown);
             sleep(500);
 
             // Wait for options to appear
@@ -504,9 +537,9 @@ public class ProgramsFilterTest {
             for (WebElement option : options) {
                 try {
                     String optionText = option.getText();
-                    if (optionText.contains("Highest Price") || optionText.contains("Price") && optionText.contains("High")) {
+                    if (optionText.contains("Highest Price") || (optionText.contains("Price") && optionText.contains("High"))) {
                         log("   ✓ Selecting: \"Highest Price\"");
-                        option.click();
+                        js.executeScript("arguments[0].click();", option);
                         found = true;
                         break;
                     }
@@ -517,8 +550,8 @@ public class ProgramsFilterTest {
 
             if (!found) {
                 // Just select first option
-                if (options.size() > 0) {
-                    options.get(0).click();
+                if (!options.isEmpty()) {
+                    js.executeScript("arguments[0].click();", options.get(0));
                     log("   ✓ Selected first sort option");
                 }
             }
@@ -620,7 +653,8 @@ public class ProgramsFilterTest {
         log("🍪 Accepting cookies...");
         try {
             if (isElementPresent(acceptCookiesButton)) {
-                clickElement(acceptCookiesButton);
+                WebElement cookieBtn = driver.findElement(acceptCookiesButton);
+                js.executeScript("arguments[0].click();", cookieBtn);
                 log("✅ Cookies accepted\n");
             }
         } catch (Exception e) {
@@ -631,8 +665,8 @@ public class ProgramsFilterTest {
     private void clickProgramsLink() {
         log("📍 Clicking Programs link...");
         try {
-            WebElement link = wait.until(ExpectedConditions.elementToBeClickable(programsLink));
-            link.click();
+            WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(programsLink));
+            js.executeScript("arguments[0].click();", link);
             sleep(1000);
             log("✅ Programs page opened\n");
         } catch (Exception e) {
@@ -643,20 +677,10 @@ public class ProgramsFilterTest {
 
     private boolean isElementPresent(By locator) {
         try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            shortWait.until(ExpectedConditions.presenceOfElementLocated(locator));
             return true;
         } catch (Exception e) {
             return false;
-        }
-    }
-
-    private void clickElement(By locator) {
-        try {
-            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
-            element.click();
-        } catch (Exception e) {
-            WebElement element = driver.findElement(locator);
-            js.executeScript("arguments[0].click();", element);
         }
     }
 
