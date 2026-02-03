@@ -4,6 +4,13 @@ target/
 !**/src/test/**/target/
 .kotlin
 
+# Compiled class files
+*.class
+
+# Screenshot folders and log files
+screenshots_*/
+*Test_*.txt
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
