@@ -414,13 +414,12 @@ public class UniversitiesTest {
                 log("✅ " + buttonName.toUpperCase() + " TEST PASSED (Count changed: " + initialCount + " → " + filteredCount + ")");
                 passedFilters++;
             } else if (!changeExpected) {
-                // For Has Dormitory and Can Apply - no change is acceptable
+                // When changeExpected is false, no change is acceptable
                 log("✅ " + buttonName.toUpperCase() + " TEST PASSED (No change, this is expected)");
                 passedFilters++;
             } else {
-                // For buttons where change IS expected but didn't happen
-                log("⚠️ " + buttonName.toUpperCase() + " - Count unchanged: " + filteredCount);
-                // Count as success with warning (as per requirements)
+                // When changeExpected is true but count didn't change - show warning but pass
+                log("⚠️ " + buttonName.toUpperCase() + " - Count unchanged: " + filteredCount + " (Warning: change was expected)");
                 passedFilters++;
             }
 
