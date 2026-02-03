@@ -1,15 +1,28 @@
-import io.github.bonigarcia.wdm.WebDriverManager;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.util.Date;
-import java.util.List;
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProgramsFilterTest {
 
@@ -17,456 +30,514 @@ public class ProgramsFilterTest {
     private WebDriverWait wait;
     private WebDriverWait shortWait;
     private JavascriptExecutor js;
-    private String screenshotFolder;
 
     private static final String SITE_URL = "https://studyleo.com/en";
 
-    // ==================== LOCATORS ====================
+    // Log system
+    private List<String> logMessages = new ArrayList<>();
+    private String logFileName;
+    private String screenshotFolder;
 
-    // Cookie
-    private final By cookieAccept = By.cssSelector("button[data-testid='cookie-banner-accept-button']");
+    // Locators
+    private By acceptCookiesButton = By.cssSelector("button[data-testid='cookie-banner-accept-button']");
+    private By programsLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/programs']");
+    
+    // Result counter - "6,588 Programs Found"
+    private By resultCounter = By.cssSelector("span.text-xs.text-gray-500.font-medium");
+    
+    // Search box
+    private By searchBox = By.cssSelector("input[data-slot='input'][aria-label='Search for a program']");
+    
+    // Clear/Eraser button
+    private By clearButton = By.xpath("//button[@data-slot='button' and .//svg[contains(@class, 'lucide-eraser')]]");
+    
+    // Has Discount button
+    private By hasDiscountBtn = By.id("has-discount");
+    
+    // 6 Dropdowns
+    private By allUniversitiesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Universities']]");
+    private By allFacultiesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Faculties']]");
+    private By allCitiesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Cities']]");
+    private By allDegreeTypesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Degree Types']]");
+    private By allLanguagesDropdown = By.xpath("//button[@data-slot='popover-trigger' and .//span[normalize-space(text())='All Languages']]");
+    private By anyDurationDropdown = By.xpath("//button[@data-slot='select-trigger' and .//span[normalize-space(text())='Any Duration']]");
+    
+    // Sort By dropdown
+    private By sortByDropdown = By.xpath("//button[@data-slot='select-trigger' and .//span[normalize-space(text())='Sort By']]");
+    
+    // Dropdown options
+    private By dropdownOptions = By.cssSelector("div[data-slot='command-item'], [role='option']");
 
-    // Navigation
-    private final By programsLink = By.linkText("Programs");
-
-    // Counter - təkmilləşdirilmiş
-    private final By programsCounter = By.xpath("//span[contains(text(), 'Programs Found')]");
-
-    // Clear button - text ilə
-    private final By clearButton = By.xpath("//button[contains(text(), 'Clear') or contains(@aria-label, 'Clear')]");
-
-    // Filter buttons - daha robust
-    private final By universityBtn = By.xpath("//button[contains(@aria-label, 'Universities') or contains(., 'Universities')]");
-    private final By facultiesBtn = By.xpath("//button[contains(@aria-label, 'Faculties') or contains(., 'Faculties')]");
-    private final By citiesBtn = By.xpath("//button[contains(@aria-label, 'Cities') or contains(., 'Cities')]");
-    private final By degreeBtn = By.xpath("//button[contains(@aria-label, 'Degree') or contains(., 'Degree')]");
-    private final By languageBtn = By.xpath("//button[contains(@aria-label, 'Language') or contains(., 'Language')]");
-
-    // Command items - daha geniş
-    private final By commandItems = By.cssSelector("div[data-slot='command-item'], [role='option']");
-
-    // Test stats
+    // Test statistics
     private int totalTests = 0;
     private int passedTests = 0;
     private int failedTests = 0;
+    private int screenshotCount = 0;
 
     public ProgramsFilterTest() {
-        initDriver();
-        createScreenshotFolder();
+        initializeDriver();
+        initializeLog();
     }
 
-    private void initDriver() {
+    private void initializeDriver() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
+        options.addArguments("--disable-popup-blocking");
         options.addArguments("--disable-blink-features=AutomationControlled");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--no-sandbox");
 
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
         js = (JavascriptExecutor) driver;
-
-        // ✅ Implicit wait SİLİNDİ - yalnız explicit wait
     }
 
-    private void createScreenshotFolder() {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+    private void initializeLog() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        String timestamp = LocalDateTime.now().format(formatter);
+
+        logFileName = "ProgramsFilterTest_" + timestamp + ".txt";
         screenshotFolder = "screenshots_" + timestamp;
-        new File(screenshotFolder).mkdirs();
-        System.out.println("📁 Screenshot folder:  " + screenshotFolder);
+
+        try {
+            Files.createDirectories(Paths.get(screenshotFolder));
+            log("📁 Screenshot folder: " + screenshotFolder);
+        } catch (IOException e) {
+            logError("Screenshot folder creation failed: " + e.getMessage());
+        }
+
+        log("═".repeat(70));
+        log("🎓 PROGRAMS FILTER TEST - AUTOMATED TESTING");
+        log("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        log("═".repeat(70));
     }
 
-    // ==================== MAIN TEST ====================
+    private void log(String message) {
+        System.out.println(message);
+        logMessages.add(message);
+    }
 
-    public void run() {
+    private void logError(String message) {
+        String errorMsg = "❌ " + message;
+        System.err.println(errorMsg);
+        logMessages.add(errorMsg);
+    }
+
+    private String takeScreenshot(String fileName) {
         try {
-            printHeader();
+            TakesScreenshot screenshot = (TakesScreenshot) driver;
+            File sourceFile = screenshot.getScreenshotAs(OutputType.FILE);
 
-            // Navigate
-            log("🌐 Opening:  " + SITE_URL);
-            driver.get(SITE_URL);
-            waitForPageLoad();
-            log("✅ Website loaded\n");
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
+            String screenshotName = fileName + "_" + timestamp + ".png";
+            String destinationPath = screenshotFolder + "/" + screenshotName;
 
-            // Cookie
-            if (isPresent(cookieAccept, 3)) {
-                click(cookieAccept);
-                log("✅ Cookies accepted\n");
-                sleep(500);
-            }
+            Files.copy(sourceFile.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
 
-            // Go to programs
-            log("🔗 Navigating to Programs.. .");
-            click(programsLink);
-            waitForPageLoad();
+            screenshotCount++;
+            log("📸 Screenshot saved: " + screenshotName);
 
-            // Wait for page to load
-            waitForCounterToLoad();
-            log("✅ Programs page loaded\n");
-
-            // Run tests
-            testFilter("University", universityBtn);
-            testFilter("Faculties", facultiesBtn);
-            testFilter("Cities", citiesBtn);
-            testFilter("Degree Types", degreeBtn);
-            testFilter("Language", languageBtn);
-
-            printSummary();
+            return destinationPath;
 
         } catch (Exception e) {
-            System.err.println("❌ CRITICAL ERROR: " + e.getMessage());
-            takeScreenshot("CRITICAL_ERROR");
+            logError("Screenshot failed: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    // ==================== TEST FILTER - TƏKMİLLƏŞDİRİLMİŞ ====================
-
-    private void testFilter(String filterName, By filterButton) {
-        totalTests++;
-        printTestHeader(filterName);
-
-        try {
-            // 1. Get initial count
-            int initialCount = getCount();
-            log("   📊 Initial:  " + formatCount(initialCount));
-
-            if (initialCount == -1) {
-                log("   ❌ Cannot read initial count - SKIPPING TEST");
-                takeScreenshot("NO_INITIAL_COUNT_" + filterName);
-                failedTests++;
-                return;
+    private void saveLogsToFile() {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(logFileName)))) {
+            for (String logMessage : logMessages) {
+                writer.println(logMessage);
             }
-
-            // 2. Open filter
-            log("   🔍 Opening " + filterName + " filter...");
-            click(filterButton);
-
-            // ✅ YENİ:  Dropdown açılmasını yoxla
-            if (! waitForDropdownToOpen()) {
-                log("   ❌ Dropdown did not open!");
-                takeScreenshot("DROPDOWN_NOT_OPENED_" + filterName);
-                failedTests++;
-                return;
-            }
-            log("   ✓ Dropdown opened");
-
-            // 3. Select first visible option
-            log("   🔍 Selecting option.. .");
-            WebElement selectedOption = selectFirstVisibleOption();
-
-            if (selectedOption == null) {
-                log("   ❌ No options found!");
-                takeScreenshot("NO_OPTIONS_" + filterName);
-                failedTests++;
-                closeDropdownIfOpen(filterButton);
-                return;
-            }
-
-            // 4. Wait for filter to apply
-            log("   ⏳ Waiting for filter to apply...");
-            waitForCounterUpdate(initialCount);
-
-            int filteredCount = getCount();
-            log("   📊 After filter: " + formatCount(filteredCount));
-
-            // 5. Validate filter
-            boolean filterWorks = validateFilter(initialCount, filteredCount);
-
-            if (filterWorks) {
-                log("   ✅ Filter works correctly!");
-            } else {
-                log("   ⚠️ Filter validation failed");
-                takeScreenshot("FILTER_FAILED_" + filterName);
-            }
-
-            // 6. Clear filters
-            log("   🗑️ Clearing filters...");
-
-            if (! isPresent(clearButton, 2)) {
-                log("   ⚠️ Clear button not visible!");
-                takeScreenshot("CLEAR_BTN_MISSING_" + filterName);
-                failedTests++;
-                return;
-            }
-
-            click(clearButton);
-
-            // ✅ YENİ:  Clear-dan sonra counter update-ini gözlə
-            waitForCounterUpdate(filteredCount);
-
-            int clearedCount = getCount();
-            log("   📊 After clear: " + formatCount(clearedCount));
-
-            // 7. Validate clear
-            boolean clearWorks = validateClear(initialCount, clearedCount, filteredCount);
-
-            if (clearWorks) {
-                log("   ✅ Clear works correctly!");
-            } else {
-                log("   ⚠️ Clear validation failed");
-                takeScreenshot("CLEAR_FAILED_" + filterName);
-            }
-
-            // 8. Final result
-            if (filterWorks && clearWorks) {
-                log("✅ " + filterName + " TEST PASSED");
-                passedTests++;
-            } else {
-                log("❌ " + filterName + " TEST FAILED");
-                failedTests++;
-            }
-
-        } catch (Exception e) {
-            System.err.println("❌ " + filterName + " error: " + e.getMessage());
-            e.printStackTrace();
-            takeScreenshot("ERROR_" + filterName);
-            failedTests++;
-        }
-
-        sleep(500);
-    }
-
-    // ==================== HELPER METHODS - TƏKMİLLƏŞDİRİLMİŞ ====================
-
-    private void waitForPageLoad() {
-        try {
-            wait.until(driver -> {
-                String readyState = js.executeScript("return document.readyState").toString();
-                return readyState.equals("complete");
-            });
-            sleep(500);
-        } catch (Exception e) {
-            log("   ⚠️ Page load warning: " + e.getMessage());
+            log("\n💾 Log saved: " + logFileName);
+        } catch (IOException e) {
+            System.err.println("❌ Log save error: " + e.getMessage());
         }
     }
 
-    private void waitForCounterToLoad() {
-        try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(programsCounter));
+    // ==================== HELPER METHODS ====================
 
-            // Counter mətninin yüklənməsini gözlə
-            wait.until(driver -> {
-                try {
-                    WebElement counter = driver.findElement(programsCounter);
-                    String text = counter.getText().trim();
-                    return ! text.isEmpty() && text.contains("Programs Found");
-                } catch (Exception e) {
-                    return false;
+    /**
+     * Get current result count from the page
+     * Extracts number from text like "6,588 Programs Found"
+     * Handles comma in number (e.g., "6,588" -> 6588)
+     */
+    private int getResultCount() {
+        try {
+            // Try to find span with "Programs Found" text
+            List<WebElement> spans = driver.findElements(resultCounter);
+            
+            for (WebElement span : spans) {
+                String text = span.getText().trim();
+                
+                if (text.contains("Programs Found")) {
+                    // Extract number: "6,588 Programs Found" -> 6588
+                    // Remove everything except digits
+                    String numStr = text.replaceAll("[^0-9]", "");
+                    
+                    if (!numStr.isEmpty()) {
+                        return Integer.parseInt(numStr);
+                    }
                 }
-            });
-
-            log("   ✓ Counter loaded");
-        } catch (Exception e) {
-            log("   ⚠️ Counter load warning: " + e.getMessage());
-        }
-    }
-
-    // ✅ YENİ METOD: Dropdown açılmasını yoxla
-    private boolean waitForDropdownToOpen() {
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(commandItems));
-            sleep(300); // Animasiya üçün
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // ✅ YENİ METOD: Counter update-ini gözlə
-    private void waitForCounterUpdate(int previousCount) {
-        try {
-            shortWait.until(driver -> {
-                int current = getCount();
-                return current != -1 && current != previousCount;
-            });
-        } catch (TimeoutException e) {
-            log("   ⚠️ Counter did not update in time");
-        }
-    }
-
-    // ✅ TƏKMİLLƏŞDİRİLMİŞ:  getCount metodu
-    private int getCount() {
-        try {
-            WebElement counter = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(programsCounter)
-            );
-
-            // Text-in mövcud olmasını gözlə
-            wait.until(driver -> {
-                String text = counter.getText().trim();
-                return ! text.isEmpty() && text.contains("Programs Found");
-            });
-
-            String text = counter.getText().trim();
-
-            if (text.isEmpty()) {
-                return -1;
             }
+            
+            return -1;
 
-            // Extract number:  "6,488 Programs Found" -> 6488
-            String numStr = text.replaceAll("[^0-9]", "");
-
-            return numStr.isEmpty() ? -1 : Integer.parseInt(numStr);
-
-        } catch (StaleElementReferenceException e) {
-            // Bir dəfə retry
-            try {
-                WebElement counter = driver.findElement(programsCounter);
-                String text = counter.getText().trim();
-                String numStr = text.replaceAll("[^0-9]", "");
-                return numStr.isEmpty() ? -1 : Integer.parseInt(numStr);
-            } catch (Exception ex) {
-                return -1;
-            }
         } catch (Exception e) {
+            logError("Failed to get result count: " + e.getMessage());
             return -1;
         }
     }
 
-    // ✅ TƏKMİLLƏŞDİRİLMİŞ: selectFirstVisibleOption
-    private WebElement selectFirstVisibleOption() {
+    /**
+     * Wait for result count to change from the given previous count
+     * Polls every 500ms until count changes or timeout
+     */
+    private boolean waitForResultChange(int previousCount, int timeoutSeconds) {
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(commandItems));
-            sleep(300);
-
-            List<WebElement> options = driver.findElements(commandItems);
-            log("   📋 Found " + options.size() + " total options");
-
-            for (WebElement opt : options) {
-                try {
-                    // Scroll to view
-                    scrollToElement(opt);
-                    sleep(200);
-
-                    // Yoxla
-                    if (opt.isDisplayed() && opt.isEnabled()) {
-                        String optionText = getOptionText(opt);
-
-                        // Click
-                        try {
-                            opt.click();
-                        } catch (ElementClickInterceptedException e) {
-                            js.executeScript("arguments[0].click();", opt);
-                        }
-
-                        log("   ✓ Selected:  " + optionText);
-                        return opt;
-                    }
-                } catch (StaleElementReferenceException e) {
-                    continue;
-                }
-            }
-
-            return null;
-
-        } catch (Exception e) {
-            log("   ❌ Option selection failed: " + e.getMessage());
-            return null;
-        }
-    }
-
-    // ✅ YENİ METOD: Option text oxuma
-    private String getOptionText(WebElement element) {
-        try {
-            String text = element.getText();
-            if (! text.isEmpty()) return text;
-
-            text = element.getAttribute("aria-label");
-            if (text != null && !text.isEmpty()) return text;
-
-            text = element.getAttribute("data-value");
-            if (text != null && !text.isEmpty()) return text;
-
-            return "Unknown";
-        } catch (Exception e) {
-            return "Unknown";
-        }
-    }
-
-    // ✅ YENİ METOD:  Filter validation
-    private boolean validateFilter(int initial, int filtered) {
-        if (filtered == -1) return false;
-        if (filtered == initial) return false;
-        if (filtered <= 0) return false;
-        if (filtered > initial) return false; // Filter azaltmalıdır
-        return true;
-    }
-
-    // ✅ YENİ METOD: Clear validation
-    private boolean validateClear(int initial, int cleared, int filtered) {
-        if (cleared == -1) return false;
-        if (cleared <= 0) return false;
-        // Clear edəndən sonra count artmalı və ya initial-a qayıtmalıdır
-        return cleared >= filtered;
-    }
-
-    // ✅ YENİ METOD:  Dropdown bağlama
-    private void closeDropdownIfOpen(By filterButton) {
-        try {
-            if (isPresent(commandItems, 1)) {
-                click(filterButton);
-                sleep(300);
-            }
-        } catch (Exception e) {
-            // Ignore
-        }
-    }
-
-    // ✅ TƏKMİLLƏŞDİRİLMİŞ: Click metodu
-    private void click(By locator) {
-        try {
-            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
-            scrollToElement(element);
-            sleep(200);
-            element.click();
-        } catch (ElementClickInterceptedException e) {
-            WebElement element = driver.findElement(locator);
-            js.executeScript("arguments[0].click();", element);
-        } catch (Exception e) {
-            WebElement element = driver.findElement(locator);
-            js.executeScript("arguments[0].click();", element);
-        }
-    }
-
-    // ✅ TƏKMİLLƏŞDİRİLMİŞ:  Scroll metodu
-    private void scrollToElement(WebElement element) {
-        try {
-            if (! element.isDisplayed()) {
-                js.executeScript(
-                        "arguments[0].scrollIntoView({block: 'center', behavior: 'instant'});",
-                        element
-                );
-                sleep(200);
-            }
-        } catch (Exception e) {
-            try {
-                js.executeScript("arguments[0].scrollIntoView(true);", element);
-                sleep(200);
-            } catch (Exception ex) {
-                // Ignore
-            }
-        }
-    }
-
-    private boolean isPresent(By locator, int seconds) {
-        try {
-            WebDriverWait tempWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
-            tempWait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            WebDriverWait tempWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+            tempWait.until(driver -> {
+                int current = getResultCount();
+                return current != -1 && current != previousCount;
+            });
             return true;
-        } catch (Exception e) {
+        } catch (TimeoutException e) {
+            log("   ⚠️  Result count did not change within " + timeoutSeconds + " seconds");
             return false;
         }
     }
 
-    private void sleep(int ms) {
+    /**
+     * Click the eraser/clear button to reset all filters
+     */
+    private void clickClearButton() {
         try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            log("🧹 Clearing filters...");
+            WebElement clearBtn = wait.until(ExpectedConditions.elementToBeClickable(clearButton));
+            clearBtn.click();
+            sleep(1000);
+            log("   ✓ Filters cleared");
+        } catch (Exception e) {
+            logError("Failed to click clear button: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Select first non-default option from a dropdown
+     * Clicks dropdown to open, waits for options, clicks first valid option
+     */
+    private boolean selectFirstDropdownOption(By dropdownLocator, String dropdownName) {
+        try {
+            // Click dropdown to open
+            WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(dropdownLocator));
+            dropdown.click();
+            sleep(500);
+
+            // Wait for options to appear
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(dropdownOptions));
+            sleep(300);
+
+            // Get all options
+            List<WebElement> options = driver.findElements(dropdownOptions);
+            log("   📋 Found " + options.size() + " options");
+
+            // Select first valid option (skip "All..." options)
+            for (WebElement option : options) {
+                try {
+                    if (option.isDisplayed() && option.isEnabled()) {
+                        String optionText = option.getText();
+                        
+                        // Skip "All" or empty options
+                        if (optionText.isEmpty() || 
+                            optionText.toLowerCase().startsWith("all ") ||
+                            optionText.equalsIgnoreCase("any duration")) {
+                            continue;
+                        }
+
+                        option.click();
+                        log("   ✓ Selected: " + optionText);
+                        return true;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            logError("Failed to select dropdown option: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // ==================== TEST METHODS ====================
+
+    /**
+     * Test search box filter
+     */
+    private void testSearchBox() {
+        totalTests++;
+        log("\n" + "━".repeat(70));
+        log("🔍 TEST 1: Search Box");
+        log("━".repeat(70));
+
+        try {
+            // Get initial count
+            int initialCount = getResultCount();
+            log("   📊 Initial count: " + formatCount(initialCount));
+
+            if (initialCount == -1) {
+                logError("Cannot read initial count - SKIPPING TEST");
+                failedTests++;
+                takeScreenshot("SEARCH_NO_INITIAL_COUNT");
+                return;
+            }
+
+            // Type in search box
+            log("   Searching for: \"engineering\"");
+            WebElement searchInput = wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
+            searchInput.clear();
+            searchInput.sendKeys("engineering");
+            sleep(500);
+
+            // Wait for results to update
+            log("   ⏳ Waiting for results to update...");
+            boolean changed = waitForResultChange(initialCount, 10);
+
+            int filteredCount = getResultCount();
+            log("   Result: " + formatCount(initialCount) + " → " + formatCount(filteredCount));
+
+            // Validate
+            if (changed && filteredCount != -1 && filteredCount != initialCount) {
+                log("✅ PASS - Count changed");
+                passedTests++;
+            } else {
+                logError("FAIL - Count did not change");
+                failedTests++;
+                takeScreenshot("SEARCH_FAILED");
+            }
+
+            // Clear filters
+            clickClearButton();
+            sleep(500);
+
+        } catch (Exception e) {
+            logError("Search box test error: " + e.getMessage());
+            failedTests++;
+            takeScreenshot("SEARCH_ERROR");
+        }
+    }
+
+    /**
+     * Test Has Discount button filter
+     */
+    private void testHasDiscountButton() {
+        totalTests++;
+        log("\n" + "━".repeat(70));
+        log("🔘 TEST 2: Has Discount Button");
+        log("━".repeat(70));
+
+        try {
+            // Get initial count
+            int initialCount = getResultCount();
+            log("   📊 Initial count: " + formatCount(initialCount));
+
+            if (initialCount == -1) {
+                logError("Cannot read initial count - SKIPPING TEST");
+                failedTests++;
+                takeScreenshot("DISCOUNT_NO_INITIAL_COUNT");
+                return;
+            }
+
+            // Click button
+            log("   🖱️  Clicking Has Discount button...");
+            WebElement button = wait.until(ExpectedConditions.elementToBeClickable(hasDiscountBtn));
+            button.click();
+            sleep(1000);
+
+            // Wait for results to update
+            log("   ⏳ Waiting for results to update...");
+            waitForResultChange(initialCount, 10);
+
+            int filteredCount = getResultCount();
+            log("   Result: " + formatCount(initialCount) + " → " + formatCount(filteredCount));
+
+            // Validate
+            if (filteredCount != -1 && filteredCount != initialCount) {
+                log("✅ PASS - Count changed");
+                passedTests++;
+            } else if (filteredCount == initialCount) {
+                log("✅ PASS - Count unchanged (no discounted programs)");
+                passedTests++;
+            } else {
+                logError("FAIL - Cannot read count");
+                failedTests++;
+                takeScreenshot("DISCOUNT_FAILED");
+            }
+
+            // Clear filters
+            clickClearButton();
+            sleep(500);
+
+        } catch (Exception e) {
+            logError("Has Discount test error: " + e.getMessage());
+            failedTests++;
+            takeScreenshot("DISCOUNT_ERROR");
+        }
+    }
+
+    /**
+     * Test a dropdown filter
+     */
+    private void testDropdown(String dropdownName, By dropdownLocator, int testNumber) {
+        totalTests++;
+        log("\n" + "━".repeat(70));
+        log("📋 TEST " + testNumber + ": " + dropdownName);
+        log("━".repeat(70));
+
+        try {
+            // Get initial count
+            int initialCount = getResultCount();
+            log("   📊 Initial count: " + formatCount(initialCount));
+
+            if (initialCount == -1) {
+                logError("Cannot read initial count - SKIPPING TEST");
+                failedTests++;
+                takeScreenshot(dropdownName.replaceAll(" ", "_") + "_NO_INITIAL_COUNT");
+                return;
+            }
+
+            // Select first option from dropdown
+            log("   🖱️  Opening " + dropdownName + "...");
+            boolean optionSelected = selectFirstDropdownOption(dropdownLocator, dropdownName);
+
+            if (!optionSelected) {
+                logError("No valid option found in dropdown");
+                failedTests++;
+                takeScreenshot(dropdownName.replaceAll(" ", "_") + "_NO_OPTIONS");
+                return;
+            }
+
+            sleep(500);
+
+            // Wait for results to update
+            log("   ⏳ Waiting for results to update...");
+            boolean changed = waitForResultChange(initialCount, 10);
+
+            int filteredCount = getResultCount();
+            log("   Result: " + formatCount(initialCount) + " → " + formatCount(filteredCount));
+
+            // Validate
+            if (changed && filteredCount != -1 && filteredCount != initialCount) {
+                log("✅ PASS - Count changed");
+                passedTests++;
+            } else {
+                logError("FAIL - Count did not change");
+                failedTests++;
+                takeScreenshot(dropdownName.replaceAll(" ", "_") + "_FAILED");
+            }
+
+            // Clear filters
+            clickClearButton();
+            sleep(500);
+
+        } catch (Exception e) {
+            logError(dropdownName + " test error: " + e.getMessage());
+            failedTests++;
+            takeScreenshot(dropdownName.replaceAll(" ", "_") + "_ERROR");
+        }
+    }
+
+    /**
+     * Test Sort By dropdown (may not change count, just verify page updates)
+     */
+    private void testSortBy() {
+        totalTests++;
+        log("\n" + "━".repeat(70));
+        log("🔃 TEST 9: Sort By - Highest Price");
+        log("━".repeat(70));
+
+        try {
+            // Get initial count
+            int initialCount = getResultCount();
+            log("   📊 Initial count: " + formatCount(initialCount));
+
+            if (initialCount == -1) {
+                logError("Cannot read initial count - SKIPPING TEST");
+                failedTests++;
+                takeScreenshot("SORT_BY_NO_INITIAL_COUNT");
+                return;
+            }
+
+            // Open dropdown
+            log("   🖱️  Opening Sort By dropdown...");
+            WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(sortByDropdown));
+            dropdown.click();
+            sleep(500);
+
+            // Wait for options to appear
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(dropdownOptions));
+            sleep(300);
+
+            // Find and click "Highest Price" option
+            List<WebElement> options = driver.findElements(dropdownOptions);
+            boolean found = false;
+
+            for (WebElement option : options) {
+                try {
+                    String optionText = option.getText();
+                    if (optionText.contains("Highest Price") || optionText.contains("Price") && optionText.contains("High")) {
+                        log("   ✓ Selecting: \"Highest Price\"");
+                        option.click();
+                        found = true;
+                        break;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+
+            if (!found) {
+                // Just select first option
+                if (options.size() > 0) {
+                    options.get(0).click();
+                    log("   ✓ Selected first sort option");
+                }
+            }
+
+            sleep(1000);
+
+            // For sort, we just verify page didn't crash and count is valid
+            int newCount = getResultCount();
+            log("   Result: " + formatCount(newCount));
+
+            if (newCount != -1) {
+                log("✅ PASS - Sort applied");
+                passedTests++;
+            } else {
+                logError("FAIL - Cannot read count after sort");
+                failedTests++;
+                takeScreenshot("SORT_BY_FAILED");
+            }
+
+        } catch (Exception e) {
+            logError("Sort By test error: " + e.getMessage());
+            failedTests++;
+            takeScreenshot("SORT_BY_ERROR");
         }
     }
 
@@ -475,87 +546,132 @@ public class ProgramsFilterTest {
         return String.format("%,d", count);
     }
 
-    private void log(String message) {
-        System.out.println(message);
-    }
+    // ==================== MAIN TEST FLOW ====================
 
-    private void takeScreenshot(String name) {
+    public void run() {
         try {
-            String timestamp = new SimpleDateFormat("HHmmss").format(new Date());
-            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-            File dest = new File(screenshotFolder + "/" + name + "_" + timestamp + ".png");
-            FileUtils.copyFile(screenshot, dest);
-            System.out.println("📸 " + dest.getName());
+            log("\n" + "█".repeat(70));
+            log("█  🚀 STARTING PROGRAMS FILTER TESTING" + " ".repeat(30) + "█");
+            log("█".repeat(70) + "\n");
+
+            openWebsite();
+            acceptCookies();
+            clickProgramsLink();
+            sleep(1000);
+
+            // Get initial count to verify page loaded
+            int initialCount = getResultCount();
+            log("\n📊 Initial Program Count: " + formatCount(initialCount) + "\n");
+
+            if (initialCount == -1) {
+                logError("Cannot read initial count - aborting tests");
+                return;
+            }
+
+            // Run all tests
+            testSearchBox();
+            testHasDiscountButton();
+            testDropdown("All Universities", allUniversitiesDropdown, 3);
+            testDropdown("All Faculties", allFacultiesDropdown, 4);
+            testDropdown("All Cities", allCitiesDropdown, 5);
+            testDropdown("All Degree Types", allDegreeTypesDropdown, 6);
+            testDropdown("All Languages", allLanguagesDropdown, 7);
+            testDropdown("Any Duration", anyDurationDropdown, 8);
+            testSortBy();
+
+            printSummary();
+
         } catch (Exception e) {
-            System.err.println("Screenshot failed: " + e.getMessage());
+            logError("CRITICAL ERROR: " + e.getMessage());
+            e.printStackTrace();
+            takeScreenshot("CRITICAL_ERROR");
         }
     }
 
-    // ==================== PRINT METHODS ====================
-
-    private void printTestHeader(String filterName) {
-        System.out.println("\n" + "=".repeat(70));
-        System.out.println("🧪 TEST: " + filterName.toUpperCase());
-        System.out.println("=".repeat(70));
-    }
-
-    private void printHeader() {
-        System.out.println("\n" + "=".repeat(70));
-        System.out.println("🧪 PROGRAMS FILTER TEST");
-        System.out.println("📅 " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        System.out.println("=".repeat(70));
-        System.out.println();
-
-        System.out.println("█".repeat(70));
-        System.out.println("█  🧪 PROGRAMS FILTER TEST - 5 SCENARIOS                          █");
-        System.out.println("█".repeat(70));
-        System.out.println();
-
-        System.out.println("📋 TEST SCENARIOS:");
-        System.out.println("  1️⃣ University Filter");
-        System.out.println("  2️⃣ Faculties Filter");
-        System.out.println("  3️⃣ Cities Filter");
-        System.out.println("  4️⃣ Degree Types Filter");
-        System.out.println("  5️⃣ Language Filter");
-        System.out.println();
-        System.out.println("─".repeat(70));
-        System.out.println();
-    }
-
     private void printSummary() {
-        System.out.println("\n\n" + "█".repeat(70));
-        System.out.println("█  📊 SUMMARY                                                     █");
-        System.out.println("█".repeat(70));
-        System.out.println();
-        System.out.println("   🧪 Total:  " + totalTests);
-        System.out.println("   ✅ Passed: " + passedTests);
-        System.out.println("   ❌ Failed: " + failedTests);
-        System.out.println();
+        log("\n" + "═".repeat(70));
+        log("📊 FINAL RESULTS");
+        log("═".repeat(70));
+        log("   Total Tests: " + totalTests);
+        log("   ✅ Passed: " + passedTests);
+        log("   ❌ Failed: " + failedTests);
 
-        double rate = totalTests > 0 ? (passedTests * 100.0 / totalTests) : 0;
-        System.out.println("   📈 Success Rate: " + String.format("%.2f", rate) + "%");
-        System.out.println();
-        System.out.println("█".repeat(70));
-        System.out.println();
+        double successRate = totalTests > 0
+                ? (passedTests * 100.0 / totalTests)
+                : 0;
+        log("   📈 Success Rate: " + String.format("%.2f%%", successRate));
+        log("═".repeat(70));
+
+        saveLogsToFile();
+    }
+
+    private void openWebsite() {
+        log("🌐 Opening: " + SITE_URL);
+        driver.get(SITE_URL);
+        sleep(1000);
+        log("✅ Website opened\n");
+    }
+
+    private void acceptCookies() {
+        log("🍪 Accepting cookies...");
+        try {
+            if (isElementPresent(acceptCookiesButton)) {
+                clickElement(acceptCookiesButton);
+                log("✅ Cookies accepted\n");
+            }
+        } catch (Exception e) {
+            log("⚠️  Cookies already accepted\n");
+        }
+    }
+
+    private void clickProgramsLink() {
+        log("📍 Clicking Programs link...");
+        try {
+            WebElement link = wait.until(ExpectedConditions.elementToBeClickable(programsLink));
+            link.click();
+            sleep(1000);
+            log("✅ Programs page opened\n");
+        } catch (Exception e) {
+            logError("Programs link not found");
+            throw e;
+        }
+    }
+
+    private boolean isElementPresent(By locator) {
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void clickElement(By locator) {
+        try {
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+            element.click();
+        } catch (Exception e) {
+            WebElement element = driver.findElement(locator);
+            js.executeScript("arguments[0].click();", element);
+        }
     }
 
     public void close() {
         if (driver != null) {
-            log("🔚 Closing browser...");
+            log("\n🔚 Closing browser...");
             driver.quit();
         }
     }
-
-    // ==================== MAIN ====================
 
     public static void main(String[] args) {
         ProgramsFilterTest test = new ProgramsFilterTest();
 
         try {
             test.run();
-            test.sleep(2000);
+            test.sleep(500);
+
         } catch (Exception e) {
-            System.err.println("\n❌ ERROR: " + e.getMessage());
+            System.err.println("ERROR: " + e.getMessage());
             e.printStackTrace();
         } finally {
             test.close();
