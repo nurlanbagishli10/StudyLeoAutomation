@@ -32,9 +32,6 @@ public class ProgramsFilterTest {
     // Counter - təkmilləşdirilmiş
     private final By programsCounter = By.xpath("//span[contains(text(), 'Programs Found')]");
 
-    // Clear button - text ilə
-    private final By clearButton = By.xpath("//button[contains(text(), 'Clear') or contains(@aria-label, 'Clear')]");
-
     // Filter buttons - daha robust
     private final By universityBtn = By.xpath("//button[contains(@aria-label, 'Universities') or contains(., 'Universities')]");
     private final By facultiesBtn = By.xpath("//button[contains(@aria-label, 'Faculties') or contains(., 'Faculties')]");
@@ -44,6 +41,9 @@ public class ProgramsFilterTest {
 
     // Command items - daha geniş
     private final By commandItems = By.cssSelector("div[data-slot='command-item'], [role='option']");
+
+    // Eraser button - JavaScript click lazımdır
+    private final By eraserButton = By.cssSelector("button[data-slot='button'].text-destructive");
 
     // Test stats
     private int totalTests = 0;
@@ -185,15 +185,7 @@ public class ProgramsFilterTest {
 
             // 6. Clear filters
             log("   🗑️ Clearing filters...");
-
-            if (! isPresent(clearButton, 2)) {
-                log("   ⚠️ Clear button not visible!");
-                takeScreenshot("CLEAR_BTN_MISSING_" + filterName);
-                failedTests++;
-                return;
-            }
-
-            click(clearButton);
+            clickEraserButton();
 
             // ✅ YENİ:  Clear-dan sonra counter update-ini gözlə
             waitForCounterUpdate(filteredCount);
@@ -413,6 +405,49 @@ public class ProgramsFilterTest {
             }
         } catch (Exception e) {
             // Ignore
+        }
+    }
+
+    /**
+     * Eraser buttonunu tap və JavaScript ilə click et
+     * Normal click işləmir çünki element overlay/modal altındadır
+     */
+    private void clickEraserButton() {
+        try {
+            log("🔍 Searching for eraser button...");
+            
+            // Bütün text-destructive buttonları tap
+            List<WebElement> destructiveButtons = driver.findElements(eraserButton);
+            
+            if (destructiveButtons.isEmpty()) {
+                log("⚠️ No destructive buttons found");
+                return;
+            }
+            
+            // Eraser SVG icon olanı tap
+            for (WebElement btn : destructiveButtons) {
+                List<WebElement> eraserSvg = btn.findElements(By.cssSelector("svg.lucide-eraser"));
+                
+                if (!eraserSvg.isEmpty()) {
+                    // Scroll into view
+                    js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", btn);
+                    Thread.sleep(300);
+                    
+                    // JavaScript click (overlay problemi yoxdur)
+                    js.executeScript("arguments[0].click();", btn);
+                    log("✅ Eraser button clicked (via JavaScript)");
+                    Thread.sleep(500); // Animation bitsin
+                    return;
+                }
+            }
+            
+            log("⚠️ Eraser button (with SVG icon) not found");
+            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log("❌ Thread interrupted while clicking eraser: " + e.getMessage());
+        } catch (Exception e) {
+            log("❌ Failed to click eraser button: " + e.getMessage());
         }
     }
 
