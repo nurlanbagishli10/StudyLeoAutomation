@@ -45,6 +45,9 @@ public class ProgramsFilterTest {
     // Command items - daha geniş
     private final By commandItems = By.cssSelector("div[data-slot='command-item'], [role='option']");
 
+    // Eraser button
+    private final By eraserButton = By.cssSelector("button[data-slot='button'].text-destructive");
+
     // Test stats
     private int totalTests = 0;
     private int passedTests = 0;
@@ -488,6 +491,30 @@ public class ProgramsFilterTest {
             System.out.println("📸 " + dest.getName());
         } catch (Exception e) {
             System.err.println("Screenshot failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Eraser buttonunu tap və JavaScript ilə click et
+     * (Normal click işləmir çünki element overlay altındadır)
+     */
+    private void clickEraserButton() {
+        try {
+            List<WebElement> destructiveButtons = driver.findElements(eraserButton);
+            
+            for (WebElement btn : destructiveButtons) {
+                List<WebElement> eraserSvg = btn.findElements(By.cssSelector("svg.lucide-eraser"));
+                if (eraserSvg.size() > 0) {
+                    js.executeScript("arguments[0].scrollIntoView(true);", btn);
+                    Thread.sleep(300);
+                    js.executeScript("arguments[0].click();", btn);
+                    log("🧹 Eraser button clicked (via JS)");
+                    return;
+                }
+            }
+            log("⚠️ Eraser button not found");
+        } catch (Exception e) {
+            log("❌ Failed to click eraser button: " + e.getMessage());
         }
     }
 
