@@ -218,6 +218,7 @@ public class BlogsTest {
         log("✅ Blogs page opened");
     }
 
+    
     /**
      * Test search box filter
      */
