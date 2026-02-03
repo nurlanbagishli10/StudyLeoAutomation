@@ -74,6 +74,10 @@ public class ProgramsFilterTest {
     private int failedTests = 0;
     private int screenshotCount = 0;
 
+    // Constants for filtering dropdown options
+    private static final String OPTION_PREFIX_ALL = "all ";
+    private static final String OPTION_ANY_DURATION = "any duration";
+
     public ProgramsFilterTest() {
         initializeDriver();
         initializeLog();
@@ -262,8 +266,8 @@ public class ProgramsFilterTest {
                         
                         // Skip "All" or empty options
                         if (optionText.isEmpty() || 
-                            optionText.toLowerCase().startsWith("all ") ||
-                            optionText.equalsIgnoreCase("any duration")) {
+                            optionText.toLowerCase().startsWith(OPTION_PREFIX_ALL) ||
+                            optionText.equalsIgnoreCase(OPTION_ANY_DURATION)) {
                             continue;
                         }
 
