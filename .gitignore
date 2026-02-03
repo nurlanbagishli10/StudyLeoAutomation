@@ -7,9 +7,15 @@ target/
 # Compiled class files
 *.class
 
-# Screenshot folders and log files
+# Screenshot folders and log files (old pattern for backwards compatibility)
 screenshots_*/
 *Test_*.txt
+
+# Log and screenshot files (but keep folders)
+logs/*.txt
+screenshots/*/
+!logs/.gitkeep
+!screenshots/.gitkeep
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

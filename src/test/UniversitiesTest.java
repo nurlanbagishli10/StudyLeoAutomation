@@ -33,6 +33,10 @@ public class UniversitiesTest {
 
     private static final String SITE_URL = "https://studyleo.com/en";
 
+    // Centralized folder paths
+    private static final String LOGS_FOLDER = "logs";
+    private static final String SCREENSHOTS_FOLDER = "screenshots";
+
     // Log sistemi
     private List<String> logMessages = new ArrayList<>();
     private String logFileName;
@@ -87,8 +91,25 @@ public class UniversitiesTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String timestamp = LocalDateTime.now().format(formatter);
 
-        logFileName = "UniversitiesTest_" + timestamp + ".txt";
-        screenshotFolder = "screenshots_" + timestamp;
+        // Create logs folder if not exists
+        try {
+            Files.createDirectories(Paths.get(LOGS_FOLDER));
+        } catch (IOException e) {
+            System.err.println("Failed to create logs folder: " + e.getMessage());
+        }
+
+        // Create screenshots folder if not exists
+        try {
+            Files.createDirectories(Paths.get(SCREENSHOTS_FOLDER));
+        } catch (IOException e) {
+            System.err.println("Failed to create screenshots folder: " + e.getMessage());
+        }
+
+        // Log file in logs folder
+        logFileName = LOGS_FOLDER + "/" + "UniversitiesTest_" + timestamp + ".txt";
+
+        // Screenshot subfolder in screenshots folder
+        screenshotFolder = SCREENSHOTS_FOLDER + "/" + "UniversitiesTest_" + timestamp;
 
         try {
             Files.createDirectories(Paths.get(screenshotFolder));
@@ -97,6 +118,7 @@ public class UniversitiesTest {
             logError("Screenshot folder creation failed: " + e.getMessage());
         }
 
+        log("📁 Log file: " + logFileName);
         log("═".repeat(70));
         log("🎓 UNIVERSITIES FILTER TEST - AUTOMATED TESTING");
         log("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -126,7 +148,7 @@ public class UniversitiesTest {
             Files.copy(sourceFile.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
 
             screenshotCount++;
-            log("📸 Screenshot saved: " + screenshotName);
+            log("📸 Screenshot saved: " + destinationPath);
 
             return destinationPath;
 
