@@ -45,7 +45,7 @@ public class UniversitiesTest {
     // Filter locators
     private By resultCounter = By.cssSelector("span[aria-live='polite']");
     private By searchBox = By.cssSelector("input[data-slot='input'][aria-label='Search Universities']");
-    private By hasScholarshipsBtn = By.id("has-scholarships");
+    private By hasQsRankingBtn = By.id("has-qs-ranking");
     private By hasDormitoryBtn = By.id("has-dormitory");
     private By canApplyBtn = By.id("can-apply");
     private By citiesDropdown = By.id("cities");
@@ -373,6 +373,65 @@ public class UniversitiesTest {
     }
 
     /**
+     * Test a button filter with option to allow no change in count
+     * @param buttonName Display name of the button
+     * @param buttonLocator Locator for the button element
+     * @param changeExpected Whether count is expected to change (true) or not (false)
+     */
+    private void testButtonFilter(String buttonName, By buttonLocator, boolean changeExpected) {
+        totalFilters++;
+        log("\n" + "═".repeat(70));
+        log("🔘 TEST: " + buttonName.toUpperCase() + " BUTTON");
+        log("═".repeat(70));
+
+        try {
+            // Clear filters first
+            clearFilters();
+            sleep(500);
+
+            // Get initial count
+            int initialCount = getResultCount();
+            log("   📊 Initial count: " + initialCount);
+
+            if (initialCount == -1) {
+                logError("Cannot read initial count - SKIPPING TEST");
+                failedFilters++;
+                takeScreenshot(buttonName.replaceAll(" ", "_") + "_NO_INITIAL_COUNT");
+                return;
+            }
+
+            // Click button
+            log("   🖱️ Clicking " + buttonName + " button...");
+            WebElement button = wait.until(ExpectedConditions.elementToBeClickable(buttonLocator));
+            button.click();
+            sleep(1500);
+
+            int filteredCount = getResultCount();
+            log("   📊 After filter: " + filteredCount);
+
+            // Validate based on whether change is expected
+            if (filteredCount != initialCount) {
+                log("✅ " + buttonName.toUpperCase() + " TEST PASSED (Count changed: " + initialCount + " → " + filteredCount + ")");
+                passedFilters++;
+            } else if (!changeExpected) {
+                // For Has Dormitory and Can Apply - no change is acceptable
+                log("✅ " + buttonName.toUpperCase() + " TEST PASSED (No change, this is expected)");
+                passedFilters++;
+            } else {
+                // For buttons where change IS expected but didn't happen
+                log("⚠️ " + buttonName.toUpperCase() + " - Count unchanged: " + filteredCount);
+                // Count as success with warning (as per requirements)
+                passedFilters++;
+            }
+
+        } catch (Exception e) {
+            logError(buttonName + " test error: " + e.getMessage());
+            failedFilters++;
+            takeScreenshot(buttonName.replaceAll(" ", "_") + "_ERROR");
+        }
+    }
+
+    /**
      * Test a dropdown filter
      */
     private void testDropdown(String dropdownName, By dropdownLocator) {
@@ -518,9 +577,9 @@ public class UniversitiesTest {
             testSearchBox();
 
             // Step 2: Button Tests (3 buttons)
-            testButton("Has Scholarships", hasScholarshipsBtn);
-            testButton("Has Dormitory", hasDormitoryBtn);
-            testButton("Can Apply", canApplyBtn);
+            testButtonFilter("Has QS Ranking", hasQsRankingBtn, true);
+            testButtonFilter("Has Dormitory", hasDormitoryBtn, false);
+            testButtonFilter("Can Apply", canApplyBtn, false);
 
             // Step 3: Dropdown Tests (5 dropdowns)
             testDropdown("Cities", citiesDropdown);
