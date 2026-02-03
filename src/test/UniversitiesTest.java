@@ -40,7 +40,7 @@ public class UniversitiesTest {
 
     // Locators
     private By acceptCookiesButton = By.cssSelector("button[data-testid='cookie-banner-accept-button']");
-    private By universitiesLink = By.xpath("/html/body/div[2]/header/div/nav/div/ul/li[1]/a");
+    private By universitiesLink = By.cssSelector("[data-slot='navigation-menu-link'][href='/en/universities']");
     
     // Filter locators
     private By resultCounter = By.cssSelector("span[aria-live='polite']");
