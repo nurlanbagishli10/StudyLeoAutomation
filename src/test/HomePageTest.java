@@ -57,7 +57,7 @@ public class HomePageTest {
     private By searchButton = By.cssSelector("button[data-slot='button'][type='submit']");
 
     // WhatsApp button - FIXED LOCATOR
-    private By whatsappButton = By.cssSelector("button[aria-label='Open support options']");
+    private By whatsappButton = By.cssSelector("button.bg-\\[\\#019875\\]");
 
     // Apply Now Timer button
     private By applyNowTimer = By.xpath("/html/body/main/div/div[2]//button[contains(@class, 'pushable')]");
