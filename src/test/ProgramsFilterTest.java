@@ -292,43 +292,47 @@ public class ProgramsFilterTest {
      */
     private boolean selectFirstDropdownOption(By dropdownLocator, String dropdownName) {
         try {
-            // Click dropdown to open
             WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(dropdownLocator));
             js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown);
             sleep(300);
             js.executeScript("arguments[0].click();", dropdown);
             sleep(500);
 
-            // Wait for options to appear
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(dropdownOptions));
             sleep(300);
 
-            // Get all options
             List<WebElement> options = driver.findElements(dropdownOptions);
             log("   📋 Found " + options.size() + " options");
+            int skipped = 0;
 
-            // Select first valid option (skip "All..." options)
             for (WebElement option : options) {
                 try {
                     if (option.isDisplayed() && option.isEnabled()) {
-                        String optionText = option.getText();
+                        String optionText = option.getText().trim();
+                        String innerText = option.getAttribute("innerText");
+                        String textContent = option.getAttribute("textContent");
 
-                        // Skip "All" or empty options
-                        if (optionText.isEmpty() ||
-                                optionText.toLowerCase().startsWith(OPTION_PREFIX_ALL) ||
-                                optionText.equalsIgnoreCase(OPTION_ANY_DURATION)) {
+                        log(String.format("       > Option: '%s' | innerText: '%s' | textContent: '%s'", optionText, innerText, textContent));
+
+                        String check = ((optionText + " " + innerText + " " + textContent).toLowerCase()).trim();
+                        if (check.isEmpty() ||
+                                check.equals("all") ||
+                                check.startsWith("all ") ||
+                                check.matches("^(all)[\\s\\.\\,\\-:·]*.*") ||
+                                check.contains("any duration")) {
+                            skipped++;
                             continue;
                         }
 
                         js.executeScript("arguments[0].click();", option);
-                        log("   ✓ Selected: " + optionText);
+                        log("   ✓ Selected: " + check);
                         return true;
                     }
                 } catch (Exception e) {
                     continue;
                 }
             }
-
+            log("   Skipped " + skipped + " options due to filtering.");
             return false;
 
         } catch (Exception e) {

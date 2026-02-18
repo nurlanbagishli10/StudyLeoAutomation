@@ -37,7 +37,6 @@ public class UniversitiesTest {
     private static final String LOGS_FOLDER = "logs";
     private static final String SCREENSHOTS_FOLDER = "screenshots";
 
-    // Log sistemi
     private List<String> logMessages = new ArrayList<>();
     private String logFileName;
     private String screenshotFolder;
@@ -45,7 +44,7 @@ public class UniversitiesTest {
     // Locators
     private By acceptCookiesButton = By.cssSelector("button[data-testid='cookie-banner-accept-button']");
     private By universitiesLink = By.cssSelector("[data-slot='navigation-menu-link'][href='/en/universities']");
-    
+
     // Filter locators
     private By resultCounter = By.cssSelector("span[aria-live='polite']");
     private By searchBox = By.cssSelector("input[data-slot='input'][aria-label='Search Universities']");
@@ -190,14 +189,14 @@ public class UniversitiesTest {
             );
 
             String text = counter.getText().trim();
-            
+
             if (text.isEmpty()) {
                 return -1;
             }
 
             // Extract number: "78 Universities Found" -> 78
             String numStr = text.replaceAll("[^0-9]", "");
-            
+
             return numStr.isEmpty() ? -1 : Integer.parseInt(numStr);
 
         } catch (Exception e) {
@@ -239,44 +238,52 @@ public class UniversitiesTest {
     }
 
     /**
-     * Select first option from a dropdown
-     * Clicks dropdown to open, waits for options, clicks first valid option
+     * Select first non-default option from a dropdown (daha universal skip və ətraflı log)
      */
-    private boolean selectFirstDropdownOption(By dropdownLocator) {
+    private boolean selectFirstDropdownOption(By dropdownLocator, String dropdownName) {
         try {
-            // Click dropdown to open
             WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(dropdownLocator));
-            dropdown.click();
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown);
+            sleep(300);
+            js.executeScript("arguments[0].click();", dropdown);
             sleep(500);
 
-            // Wait for options to appear
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(dropdownOptions));
             sleep(300);
 
-            // Get all options
             List<WebElement> options = driver.findElements(dropdownOptions);
             log("   📋 Found " + options.size() + " options");
+            int skipped = 0;
 
-            // Select first valid option
             for (WebElement option : options) {
                 try {
                     if (option.isDisplayed() && option.isEnabled()) {
-                        String optionText = option.getText();
-                        
-                        // Skip "All" or empty options
-                        if (optionText.isEmpty() || optionText.equalsIgnoreCase("All")) {
+                        String optionText = option.getText().trim();
+                        String innerText = option.getAttribute("innerText");
+                        String textContent = option.getAttribute("textContent");
+
+                        log(String.format("       > Option: '%s' | innerText: '%s' | textContent: '%s'", optionText, innerText, textContent));
+
+                        // Universal skip logic
+                        String check = ((optionText + " " + innerText + " " + textContent).toLowerCase()).trim();
+                        if (check.isEmpty() ||
+                                check.equals("all") ||
+                                check.startsWith("all ") ||
+                                check.matches("^(all)[\\s\\.\\,\\-:·]*.*") ||
+                                check.contains("any duration")) {
+                            skipped++;
                             continue;
                         }
 
-                        option.click();
-                        log("   ✓ Selected: " + optionText);
+                        js.executeScript("arguments[0].click();", option);
+                        log("   ✓ Selected: " + check);
                         return true;
                     }
                 } catch (Exception e) {
                     continue;
                 }
             }
-
+            log("   Skipped " + skipped + " options due to filtering.");
             return false;
 
         } catch (Exception e) {
@@ -285,11 +292,9 @@ public class UniversitiesTest {
         }
     }
 
+
     // ==================== TEST METHODS ====================
 
-    /**
-     * Test search box filter
-     */
     private void testSearchBox() {
         totalFilters++;
         log("\n" + "═".repeat(70));
@@ -297,7 +302,6 @@ public class UniversitiesTest {
         log("═".repeat(70));
 
         try {
-            // Get initial count
             int initialCount = getResultCount();
             log("   📊 Initial count: " + initialCount);
 
@@ -308,21 +312,18 @@ public class UniversitiesTest {
                 return;
             }
 
-            // Type in search box
             log("   ⌨️ Typing 'istanbul' in search box...");
             WebElement searchInput = wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
             searchInput.clear();
             searchInput.sendKeys("istanbul");
             sleep(500);
 
-            // Wait for results to update
             log("   ⏳ Waiting for results to update...");
             boolean changed = waitForResultChange(initialCount, 10);
 
             int filteredCount = getResultCount();
             log("   📊 After search: " + filteredCount);
 
-            // Validate
             if (changed && filteredCount != -1 && filteredCount != initialCount) {
                 log("✅ SEARCH BOX TEST PASSED");
                 passedFilters++;
@@ -339,67 +340,6 @@ public class UniversitiesTest {
         }
     }
 
-    /**
-     * Test a button filter
-     */
-    private void testButton(String buttonName, By buttonLocator) {
-        totalFilters++;
-        log("\n" + "═".repeat(70));
-        log("🔘 TEST: " + buttonName.toUpperCase() + " BUTTON");
-        log("═".repeat(70));
-
-        try {
-            // Clear filters first
-            clearFilters();
-            sleep(500);
-
-            // Get initial count
-            int initialCount = getResultCount();
-            log("   📊 Initial count: " + initialCount);
-
-            if (initialCount == -1) {
-                logError("Cannot read initial count - SKIPPING TEST");
-                failedFilters++;
-                takeScreenshot(buttonName.replaceAll(" ", "_") + "_NO_INITIAL_COUNT");
-                return;
-            }
-
-            // Click button
-            log("   🖱️ Clicking " + buttonName + " button...");
-            WebElement button = wait.until(ExpectedConditions.elementToBeClickable(buttonLocator));
-            button.click();
-            sleep(500);
-
-            // Wait for results to update
-            log("   ⏳ Waiting for results to update...");
-            boolean changed = waitForResultChange(initialCount, 10);
-
-            int filteredCount = getResultCount();
-            log("   📊 After filter: " + filteredCount);
-
-            // Validate
-            if (changed && filteredCount != -1 && filteredCount != initialCount) {
-                log("✅ " + buttonName.toUpperCase() + " TEST PASSED");
-                passedFilters++;
-            } else {
-                logError(buttonName.toUpperCase() + " TEST FAILED - Count did not change");
-                failedFilters++;
-                takeScreenshot(buttonName.replaceAll(" ", "_") + "_FAILED");
-            }
-
-        } catch (Exception e) {
-            logError(buttonName + " test error: " + e.getMessage());
-            failedFilters++;
-            takeScreenshot(buttonName.replaceAll(" ", "_") + "_ERROR");
-        }
-    }
-
-    /**
-     * Test a button filter with option to allow no change in count
-     * @param buttonName Display name of the button
-     * @param buttonLocator Locator for the button element
-     * @param changeExpected Whether count is expected to change (true) or not (false)
-     */
     private void testButtonFilter(String buttonName, By buttonLocator, boolean changeExpected) {
         totalFilters++;
         log("\n" + "═".repeat(70));
@@ -407,11 +347,9 @@ public class UniversitiesTest {
         log("═".repeat(70));
 
         try {
-            // Clear filters first
             clearFilters();
             sleep(500);
 
-            // Get initial count
             int initialCount = getResultCount();
             log("   📊 Initial count: " + initialCount);
 
@@ -422,7 +360,6 @@ public class UniversitiesTest {
                 return;
             }
 
-            // Click button
             log("   🖱️ Clicking " + buttonName + " button...");
             WebElement button = wait.until(ExpectedConditions.elementToBeClickable(buttonLocator));
             button.click();
@@ -431,16 +368,13 @@ public class UniversitiesTest {
             int filteredCount = getResultCount();
             log("   📊 After filter: " + filteredCount);
 
-            // Validate based on whether change is expected
             if (filteredCount != initialCount) {
                 log("✅ " + buttonName.toUpperCase() + " TEST PASSED (Count changed: " + initialCount + " → " + filteredCount + ")");
                 passedFilters++;
             } else if (!changeExpected) {
-                // When changeExpected is false, no change is acceptable
                 log("✅ " + buttonName.toUpperCase() + " TEST PASSED (No change, this is expected)");
                 passedFilters++;
             } else {
-                // When changeExpected is true but count didn't change - show warning but pass
                 log("⚠️ " + buttonName.toUpperCase() + " - Count unchanged: " + filteredCount + " (Warning: change was expected)");
                 passedFilters++;
             }
@@ -452,9 +386,6 @@ public class UniversitiesTest {
         }
     }
 
-    /**
-     * Test a dropdown filter
-     */
     private void testDropdown(String dropdownName, By dropdownLocator) {
         totalFilters++;
         log("\n" + "═".repeat(70));
@@ -462,11 +393,9 @@ public class UniversitiesTest {
         log("═".repeat(70));
 
         try {
-            // Clear filters first
             clearFilters();
             sleep(500);
 
-            // Get initial count
             int initialCount = getResultCount();
             log("   📊 Initial count: " + initialCount);
 
@@ -477,9 +406,8 @@ public class UniversitiesTest {
                 return;
             }
 
-            // Select first option from dropdown
             log("   🖱️ Opening " + dropdownName + " dropdown...");
-            boolean optionSelected = selectFirstDropdownOption(dropdownLocator);
+            boolean optionSelected = selectFirstDropdownOption(dropdownLocator, dropdownName);
 
             if (!optionSelected) {
                 logError("No valid option found in dropdown");
@@ -490,14 +418,12 @@ public class UniversitiesTest {
 
             sleep(500);
 
-            // Wait for results to update
             log("   ⏳ Waiting for results to update...");
             boolean changed = waitForResultChange(initialCount, 10);
 
             int filteredCount = getResultCount();
             log("   📊 After filter: " + filteredCount);
 
-            // Validate
             if (changed && filteredCount != -1 && filteredCount != initialCount) {
                 log("✅ " + dropdownName.toUpperCase() + " TEST PASSED");
                 passedFilters++;
@@ -514,9 +440,6 @@ public class UniversitiesTest {
         }
     }
 
-    /**
-     * Test Sort By dropdown (may not change count, just verify page updates)
-     */
     private void testSortBy() {
         totalFilters++;
         log("\n" + "═".repeat(70));
@@ -524,11 +447,9 @@ public class UniversitiesTest {
         log("═".repeat(70));
 
         try {
-            // Clear filters first
             clearFilters();
             sleep(500);
 
-            // Get initial count
             int initialCount = getResultCount();
             log("   📊 Initial count: " + initialCount);
 
@@ -539,9 +460,8 @@ public class UniversitiesTest {
                 return;
             }
 
-            // Select first option from dropdown
             log("   🖱️ Opening Sort By dropdown...");
-            boolean optionSelected = selectFirstDropdownOption(sortByDropdown);
+            boolean optionSelected = selectFirstDropdownOption(sortByDropdown, "Sort By");
 
             if (!optionSelected) {
                 logError("No valid option found in dropdown");
@@ -552,7 +472,6 @@ public class UniversitiesTest {
 
             sleep(1000);
 
-            // For sort, we just verify page didn't crash and count is valid
             int newCount = getResultCount();
             log("   📊 After sort: " + newCount);
 
@@ -572,8 +491,6 @@ public class UniversitiesTest {
         }
     }
 
-    // ==================== MAIN TEST FLOW ====================
-
     public void run() {
         try {
             log("\n" + "█".repeat(70));
@@ -585,7 +502,6 @@ public class UniversitiesTest {
             clickUniversitiesLink();
             sleep(1000);
 
-            // Get initial count to verify page loaded
             int initialCount = getResultCount();
             log("\n📊 Universities page loaded with " + initialCount + " results\n");
 
@@ -594,15 +510,10 @@ public class UniversitiesTest {
                 return;
             }
 
-            // Step 1: Search Box Test
             testSearchBox();
-
-            // Step 2: Button Tests (3 buttons)
             testButtonFilter("Has QS Ranking", hasQsRankingBtn, true);
             testButtonFilter("Has Dormitory", hasDormitoryBtn, false);
             testButtonFilter("Can Apply", canApplyBtn, false);
-
-            // Step 3: Dropdown Tests (5 dropdowns)
             testDropdown("Cities", citiesDropdown);
             testDropdown("Faculties", facultiesDropdown);
             testDropdown("Programs", programsDropdown);
