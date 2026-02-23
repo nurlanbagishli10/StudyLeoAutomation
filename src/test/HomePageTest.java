@@ -43,26 +43,13 @@ public class HomePageTest {
     private String screenshotFolder;
 
     // Locators
-    // Cookie banner
     private By acceptCookiesButton = By.cssSelector("button[data-testid='cookie-banner-accept-button']");
-
-    // Apply Now button (header)
     private By applyNowButton = By.cssSelector("button[data-slot='button'][aria-label='Apply Now']");
-
-    // Dialog close button
     private By closeDialogButton = By.cssSelector("button[data-slot='dialog-close']");
-
-    // Search box and button
     private By searchBox = By.cssSelector("input[data-slot='input'][placeholder='Search']");
     private By searchButton = By.cssSelector("button[data-slot='button'][type='submit']");
-
-    // WhatsApp button - FIXED LOCATOR
     private By whatsappButton = By.cssSelector("button.bg-\\[\\#019875\\]");
-
-    // Apply Now Timer button
     private By applyNowTimer = By.xpath("/html/body/main/div/div[2]//button[contains(@class, 'pushable')]");
-
-    // Navigation links
     private By universitiesLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/universities']");
     private By programsLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/programs']");
     private By blogsLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/blogs']");
@@ -197,6 +184,12 @@ public class HomePageTest {
         }
     }
 
+    // Yeni util: Səhifənin tam yüklənməsini gözlə
+    private void waitForPageLoad() {
+        wait.until(webDriver -> ((JavascriptExecutor) webDriver)
+                .executeScript("return document.readyState").equals("complete"));
+    }
+
     // ==================== TEST METHODS ====================
 
     private void testAcceptCookies() {
@@ -318,12 +311,14 @@ public class HomePageTest {
                 log("   ℹ️ Search button found");
                 WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(searchButton));
                 js.executeScript("arguments[0].click();", btn);
+                waitForPageLoad(); // əlavə et!
                 sleep(2000);
                 log("   ✓ Search results opened");
 
                 // Navigate back
                 log("   🔙 Navigating back...");
                 driver.navigate().back();
+                waitForPageLoad(); // əlavə et!
                 sleep(1500);
                 log("✅ PASS - Search button working");
                 passedTests++;
@@ -363,6 +358,7 @@ public class HomePageTest {
                     for (String window : allWindows) {
                         if (!window.equals(mainWindow)) {
                             driver.switchTo().window(window);
+                            waitForPageLoad(); // əlavə et!
                             sleep(500);
                             log("   ✓ Closing new tab...");
                             driver.close();
@@ -374,6 +370,7 @@ public class HomePageTest {
                 }
 
                 driver.switchTo().window(mainWindow);
+                waitForPageLoad(); // əlavə et!
                 log("✅ PASS - WhatsApp button working");
                 passedTests++;
                 sleep(1000);
@@ -430,6 +427,7 @@ public class HomePageTest {
         try {
             // First go back to home page
             driver.get(SITE_URL);
+            waitForPageLoad(); // əlavə et!
             sleep(1000);
 
             if (isElementPresent(locator)) {
@@ -438,6 +436,7 @@ public class HomePageTest {
                 js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", link);
                 sleep(300);
                 js.executeScript("arguments[0].click();", link);
+                waitForPageLoad(); // əlavə et!
                 sleep(1500);
 
                 String currentUrl = driver.getCurrentUrl();
@@ -469,31 +468,15 @@ public class HomePageTest {
         try {
             openWebsite();
 
-            // Test 1: Accept Cookies
             testAcceptCookies();
-
-            // Test 2: Apply Now Button (Header)
             testApplyNowButton();
-
-            // Test 3: Close Dialog
             testCloseDialog();
-
-            // Test 4: Search Box
             testSearchBox();
-
-            // Test 5: Search Button
             testSearchButton();
-
-            // Test 6: WhatsApp Button (FIXED)
             testWhatsAppButton();
-
-            // Test 7: Apply Now Timer Button
             testApplyNowTimer();
-
-            // Test 8: Close Dialog
             testCloseDialog();
 
-            // Test 9-14: Navigation Links
             testNavigationLink("Universities", universitiesLink, "/en/universities");
             testNavigationLink("Programs", programsLink, "/en/programs");
             testNavigationLink("Blogs", blogsLink, "/en/blogs");
@@ -501,7 +484,6 @@ public class HomePageTest {
             testNavigationLink("About", aboutLink, "/en/about");
             testNavigationLink("Contact", contactLink, "/en/contact");
 
-            // Print summary
             printSummary();
 
         } catch (Exception e) {
@@ -531,6 +513,7 @@ public class HomePageTest {
     private void openWebsite() {
         log("\n🌐 Opening: " + SITE_URL);
         driver.get(SITE_URL);
+        waitForPageLoad();
         sleep(1000);
         log("✅ Website opened\n");
     }
@@ -542,15 +525,12 @@ public class HomePageTest {
         }
     }
 
-    // ==================== MAIN METHOD ====================
-
     public static void main(String[] args) {
         HomePageTest test = new HomePageTest();
 
         try {
             test.run();
             test.sleep(500);
-
         } catch (Exception e) {
             System.err.println("ERROR: " + e.getMessage());
             e.printStackTrace();
