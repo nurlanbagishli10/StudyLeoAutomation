@@ -56,7 +56,8 @@ public class HomePageTest {
     private By visaSupportLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/study-visa-support-in-turkey']");
     private By aboutLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/about']");
     private By contactLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/contact']");
-
+    private By educationLink = By.xpath("//button[@data-slot='navigation-menu-trigger' and contains(., 'Education')]");
+    private By StudyInTurkey = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/study-in-turkey']");
     // Test statistics
     private int totalTests = 0;
     private int passedTests = 0;
@@ -462,6 +463,57 @@ public class HomePageTest {
         }
     }
 
+
+    private void testNavigationLinkForBanner(String linkName, By locator, String expectedPath,By locator2) {
+        totalTests++;
+        log("\n" + "━".repeat(70));
+        log("🔗 TEST: Navigation - " + linkName);
+        log("━".repeat(70));
+
+        try {
+            // First go back to home page
+            driver.get(SITE_URL);
+            waitForPageLoad(); // əlavə et!
+            sleep(1000);
+
+            WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            button.click();
+            sleep(500);
+
+
+
+            if (isElementPresent(locator2)) {
+                log("   ℹ️ " + linkName + " link found");
+                WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(locator2));
+                js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", link);
+                sleep(300);
+                js.executeScript("arguments[0].click();", link);
+                waitForPageLoad(); // əlavə et!
+                sleep(1500);
+
+                String currentUrl = driver.getCurrentUrl();
+                log("   📍 Current URL: " + currentUrl);
+
+                if (currentUrl.contains(expectedPath)) {
+                    log("✅ PASS - " + linkName + " page opened");
+                    passedTests++;
+                } else {
+                    logError("FAIL - Wrong URL: expected " + expectedPath);
+                    failedTests++;
+                    takeScreenshot(linkName.toUpperCase() + "_WRONG_URL");
+                }
+            } else {
+                logError("FAIL - " + linkName + " link not found");
+                failedTests++;
+                takeScreenshot(linkName.toUpperCase() + "_NOT_FOUND");
+            }
+        } catch (Exception e) {
+            logError("FAIL - " + linkName + " error: " + e.getMessage());
+            failedTests++;
+            takeScreenshot(linkName.toUpperCase() + "_ERROR");
+        }
+    }
+
     // ==================== MAIN TEST FLOW ====================
 
     public void run() {
@@ -479,11 +531,11 @@ public class HomePageTest {
 
             testNavigationLink("Universities", universitiesLink, "/en/universities");
             testNavigationLink("Programs", programsLink, "/en/programs");
+            testNavigationLinkForBanner("Education",educationLink,"/en/study-in-turkey",StudyInTurkey);
             testNavigationLink("Blogs", blogsLink, "/en/blogs");
             testNavigationLink("Visa Support", visaSupportLink, "/en/study-visa-support-in-turkey");
             testNavigationLink("About", aboutLink, "/en/about");
             testNavigationLink("Contact", contactLink, "/en/contact");
-
             printSummary();
 
         } catch (Exception e) {
