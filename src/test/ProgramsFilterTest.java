@@ -82,8 +82,24 @@ public class ProgramsFilterTest {
     private static final String OPTION_PREFIX_ALL = "all ";
     private static final String OPTION_ANY_DURATION = "any duration";
 
+    private boolean sharedDriver = false;
+
+    // Default constructor (standalone mode)
     public ProgramsFilterTest() {
-        initializeDriver();
+        this(null, false);
+    }
+
+    // New constructor for shared driver mode
+    public ProgramsFilterTest(WebDriver driver, boolean sharedDriver) {
+        this.sharedDriver = sharedDriver;
+        if (driver != null && sharedDriver) {
+            this.driver = driver;
+            this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            this.js = (JavascriptExecutor) driver;
+        } else {
+            initializeDriver();
+        }
         initializeLog();
     }
 
@@ -711,15 +727,19 @@ public class ProgramsFilterTest {
     }
 
     public void close() {
-        if (driver != null) {
-            log("\n🔚 Closing browser...");
+        if (!sharedDriver && driver != null) {
+            log("\n\uD83D\uDD1A Closing browser...");
             driver.quit();
         }
     }
 
+    public int getTotalTests() { return totalTests; }
+    public int getPassedTests() { return passedTests; }
+    public int getFailedTests() { return failedTests; }
+    public String getTestClassName() { return this.getClass().getSimpleName(); }
+
     public static void main(String[] args) {
         ProgramsFilterTest test = new ProgramsFilterTest();
-
         try {
             test.run();
             test.sleep(500);

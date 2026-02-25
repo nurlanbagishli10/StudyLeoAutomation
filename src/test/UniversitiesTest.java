@@ -64,8 +64,24 @@ public class UniversitiesTest {
     private int failedFilters = 0;
     private int screenshotCount = 0;
 
+    private boolean sharedDriver = false;
+
+    // Default constructor (standalone mode)
     public UniversitiesTest() {
-        initializeDriver();
+        this(null, false);
+    }
+
+    // New constructor for shared driver mode
+    public UniversitiesTest(WebDriver driver, boolean sharedDriver) {
+        this.sharedDriver = sharedDriver;
+        if (driver != null && sharedDriver) {
+            this.driver = driver;
+            this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            this.js = (JavascriptExecutor) driver;
+        } else {
+            initializeDriver();
+        }
         initializeLog();
     }
 
@@ -604,15 +620,19 @@ public class UniversitiesTest {
     }
 
     public void close() {
-        if (driver != null) {
-            log("\n🔚 Closing browser...");
+        if (!sharedDriver && driver != null) {
+            log("\n\uD83D\uDD1A Closing browser...");
             driver.quit();
         }
     }
 
+    public int getTotalTests() { return totalFilters; }
+    public int getPassedTests() { return passedFilters; }
+    public int getFailedTests() { return failedFilters; }
+    public String getTestClassName() { return this.getClass().getSimpleName(); }
+
     public static void main(String[] args) {
         UniversitiesTest test = new UniversitiesTest();
-
         try {
             test.run();
             test.sleep(500);

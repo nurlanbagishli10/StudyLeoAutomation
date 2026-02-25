@@ -66,8 +66,24 @@ public class BlogsTest {
     private int failedTests = 0;
     private int screenshotCount = 0;
 
+    private boolean sharedDriver = false;
+
+    // Default constructor (standalone mode)
     public BlogsTest() {
-        initializeDriver();
+        this(null, false);
+    }
+
+    // New constructor for shared driver mode
+    public BlogsTest(WebDriver driver, boolean sharedDriver) {
+        this.sharedDriver = sharedDriver;
+        if (driver != null && sharedDriver) {
+            this.driver = driver;
+            this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            this.js = (JavascriptExecutor) driver;
+        } else {
+            initializeDriver();
+        }
         initializeLog();
     }
 
@@ -455,15 +471,19 @@ public class BlogsTest {
     }
 
     public void close() {
-        if (driver != null) {
-            log("\n🔚 Closing browser...");
+        if (!sharedDriver && driver != null) {
+            log("\n\uD83D\uDD1A Closing browser...");
             driver.quit();
         }
     }
 
+    public int getTotalTests() { return totalTests; }
+    public int getPassedTests() { return passedTests; }
+    public int getFailedTests() { return failedTests; }
+    public String getTestClassName() { return this.getClass().getSimpleName(); }
+
     public static void main(String[] args) {
         BlogsTest test = new BlogsTest();
-
         try {
             test.run();
             test.sleep(500);
