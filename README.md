@@ -10,8 +10,7 @@ Bu test paketi aşağıdakı səhifələri və funksiyaları test edir:
 - Cookie banner qəbulu
 - "Apply Now" düyməsi
 - Dialoq pəncərəsinin bağlanması
-- Axtarış qutusu
-- Axtarış düyməsi
+- Axtarış qutusu və düyməsi
 - WhatsApp dəstək düyməsi
 - Timer düyməsi
 - Naviqasiya linklərinin yoxlanması (Universities, Programs, Blogs, Visa Support, About, Contact)
@@ -21,35 +20,31 @@ Bu test paketi aşağıdakı səhifələri və funksiyaları test edir:
 - QS Reytinqi filtri
 - Yataqxana filtri
 - Müraciət etmək filtri
-- Şəhərlər dropdown-u
-- Fakültələr dropdown-u
-- Proqramlar dropdown-u
-- Dərəcə növləri dropdown-u
+- Şəhərlər, fakültələr, proqramlar, dərəcə növləri dropdown-ları
 - Sıralama dropdown-u
 
 ### 📚 Proqramlar Testləri (ProgramsFilterTest)
 - Proqram axtarışı
-- Universitet filtri
-- Fakültə filtri
-- Dərəcə növü filtri
-- Təhsil dili filtri
-- Təqaüd filtri
+- Universitet, fakültə, dərəcə növü, təhsil dili, təqaüd filtrləri
 - Sıralama funksiyası
 
 ### 📝 Bloqlar Testləri (BlogsTest)
 - Bloq axtarışı
 - Kateqoriya filtri
+- Pagination və blog linklərinin yoxlanması
 
 ### 🛂 Viza Dəstəyi Testləri (VisaSupportTest)
 - Ölkə axtarışı
 - Viza məlumatlarının yoxlanması
+- Pagination və per-page funksiyası
 
 ## 🛠️ Texnologiyalar
 
-- **Java 21** - Proqramlaşdırma dili
-- **Selenium WebDriver 4.15.0** - Veb avtomatlaşdırma
-- **WebDriverManager 5.6.0** - Browser driver idarəetməsi
-- **Maven** - Layihə idarəetməsi və asılılıqlar
+- **Java 21**
+- **Selenium WebDriver 4.15.0**
+- **WebDriverManager 5.6.0**
+- **Maven**
+- **Google Chrome**
 
 ## 📦 Quraşdırma
 
@@ -89,7 +84,7 @@ Test Runner menyusu:
 [3] 📚 ProgramsFilterTest
 [4] 📝 BlogsTest
 [5] 🛂 VisaSupportTest
-[A] ▶️  Run ALL tests
+[A] ▶️  Run ALL tests (browser paylaşılır)
 [S] ☑️  Select multiple tests
 [Q] 🚪 Quit
 ```
@@ -116,26 +111,38 @@ mvn compile exec:java -Dexec.mainClass="VisaSupportTest"
 ## 📁 Layihə Strukturu
 
 ```
-studyleo-automation/
-├── pom.xml                          # Maven konfiqurasiya faylı
+StudyleoPreTestAuto/
+├── pom.xml
 ├── src/
 │   └── test/
-│       └── java/
-│           ├── TestRunner.java          # İnteraktiv test runner
-│           ├── HomePageTest.java        # Ana səhifə testləri
-│           ├── UniversitiesTest.java    # Universitetlər səhifəsi testləri
-│           ├── ProgramsFilterTest.java  # Proqramlar səhifəsi testləri
-│           ├── BlogsTest.java           # Bloqlar səhifəsi testləri
-│           └── VisaSupportTest.java     # Viza dəstəyi səhifəsi testləri
-├── logs/                            # Test log faylları
-└── screenshots/                     # Test zamanı çəkilən ekran şəkilləri
+│       ├── TestRunner.java
+│       ├── HomePageTest.java
+│       ├── UniversitiesTest.java
+│       ├── ProgramsFilterTest.java
+│       ├── BlogsTest.java
+│       └── VisaSupportTest.java
+├── logs/
+└── screenshots/
 ```
 
-## 📊 Test Nəticələri
+## 📊 Test Nəticələri və Global Summary
 
 Hər test işə salındıqda:
-- **Logs:** `logs/` qovluğunda saxlanılır (məsələn: `HomePageTest_2026-02-03_14-30-45.txt`)
+- **Logs:** `logs/` qovluğunda saxlanılır (məsələn: `HomePageTest_2026-02-25_14-09-37.txt`)
 - **Screenshots:** `screenshots/` qovluğunda xəta baş verdikdə ekran şəkilləri saxlanılır
+
+Bütün testlər bitdikdən sonra aşağıdakı formatda global summary çıxır:
+```
+================== TEST RESULTS SUMMARY ==================
+TestClass           Total  |  Passed |  Failed
+HomePageTest        10     |   9     |   1
+BlogsTest           4      |   3     |   1
+ProgramsFilterTest  8      |   8     |   0
+VisaSupportTest     6      |   5     |   1
+----------------------------------------------------------
+TOTAL               28     |  25     |   3
+==========================================================
+```
 
 ## 🔧 Konfiqurasiya
 
