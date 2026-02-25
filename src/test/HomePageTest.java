@@ -49,6 +49,7 @@ public class HomePageTest {
     private By searchBox = By.cssSelector("input[data-slot='input'][placeholder='Search']");
     private By searchButton = By.cssSelector("button[data-slot='button'][type='submit']");
     private By whatsappButton = By.cssSelector("button.bg-\\[\\#019875\\]");
+    private By telegramButton = By.id("SVGRepo_iconCarrier");
     private By applyNowTimer = By.xpath("/html/body/main/div/div[2]//button[contains(@class, 'pushable')]");
     private By universitiesLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/universities']");
     private By programsLink = By.cssSelector("a[data-slot='navigation-menu-link'][href='/en/programs']");
@@ -265,7 +266,7 @@ public class HomePageTest {
     private void testCloseDialog() {
         totalTests++;
         log("\n" + "━".repeat(70));
-        log("❌ TEST: Close Dialog");
+        log("❎ TEST: Close Dialog");
         log("━".repeat(70));
 
         try {
@@ -360,34 +361,12 @@ public class HomePageTest {
         try {
             if (isElementPresent(whatsappButton)) {
                 log("   ℹ️ WhatsApp button found");
-                String mainWindow = driver.getWindowHandle();
-                log("   ℹ️ Main window saved");
-
-                WebElement wpBtn = wait.until(ExpectedConditions.presenceOfElementLocated(whatsappButton));
-                js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", wpBtn);
+                WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(whatsappButton));
+                button.click();
+                sleep(1000);
+                button.click();
                 sleep(300);
-                js.executeScript("arguments[0].click();", wpBtn);
-                sleep(2000);
-
-                Set<String> allWindows = driver.getWindowHandles();
-                if (allWindows.size() > 1) {
-                    log("   ℹ️ New tab opened");
-                    for (String window : allWindows) {
-                        if (!window.equals(mainWindow)) {
-                            driver.switchTo().window(window);
-                            waitForPageLoad(); // əlavə et!
-                            sleep(500);
-                            log("   ✓ Closing new tab...");
-                            driver.close();
-                            break;
-                        }
-                    }
-                } else {
-                    log("   ℹ️ Support options opened (popup blocked)");
-                }
-
-                driver.switchTo().window(mainWindow);
-                waitForPageLoad(); // əlavə et!
+                // əlavə et!
                 log("✅ PASS - WhatsApp button working");
                 passedTests++;
                 sleep(1000);
@@ -400,6 +379,35 @@ public class HomePageTest {
             logError("FAIL - WhatsApp error: " + e.getMessage());
             failedTests++;
             takeScreenshot("WHATSAPP_ERROR");
+        }
+    }
+    private void testTelegramButton() {
+         totalTests++;
+        log("\n" + "━".repeat(70));
+        log("💬 TEST 6: Telegram Button");
+        log("━".repeat(70));
+
+        try {
+            if (isElementPresent(telegramButton)) {
+                log("   ℹ️ Telegram button found");
+                WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(telegramButton));
+                button.click();
+                sleep(1000);
+                 button.click();
+                 sleep(300);
+                // əlavə et!
+                log("✅ PASS - Telegram button working");
+                passedTests++;
+                sleep(1000);
+            } else {
+                logError("FAIL - Telegram button not found");
+                failedTests++;
+                takeScreenshot("TELEGRAM_NOT_FOUND");
+            }
+        } catch (Exception e) {
+            logError("FAIL - Telegram error: " + e.getMessage());
+            failedTests++;
+            takeScreenshot("TELEGRAM_ERROR");
         }
     }
 
@@ -542,6 +550,7 @@ public class HomePageTest {
             testSearchBox();
             testSearchButton();
             testWhatsAppButton();
+            testTelegramButton();
             testApplyNowTimer();
             testCloseDialog();
 
